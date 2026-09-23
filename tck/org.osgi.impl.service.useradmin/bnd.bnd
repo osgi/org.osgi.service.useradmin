@@ -1,0 +1,9 @@
+# Set javac settings from JDT prefs
+
+Bundle-Activator: org.osgi.impl.service.useradmin.Activator
+Bundle-Description: OSGi UserAdmin Service Reference Implementation by Gatespace AB.
+Export-Service: org.osgi.service.useradmin.UserAdmin
+
+-privatepackage: ${p}.*
+
+p: org.osgi.impl.service.useradmin
