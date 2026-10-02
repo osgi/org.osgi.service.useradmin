@@ -1,0 +1,10 @@
+org/osgi/service/useradmin/package-info.class
+org/osgi/service/useradmin/User.class
+org/osgi/service/useradmin/Role.class
+org/osgi/service/useradmin/UserAdminEvent.class
+org/osgi/service/useradmin/Group.class
+org/osgi/service/useradmin/Authorization.class
+org/osgi/service/useradmin/UserAdmin.class
+org/osgi/service/useradmin/UserAdminPermission.class
+org/osgi/service/useradmin/UserAdminListener.class
+org/osgi/service/useradmin/UserAdminPermissionCollection.class

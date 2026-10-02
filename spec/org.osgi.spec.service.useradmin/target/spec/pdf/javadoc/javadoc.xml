@@ -1,0 +1,1126 @@
+<?xml version='1.0' encoding='utf-8'?>
+<top>
+  <package name='org.osgi.service.useradmin' fqn='org.osgi.service.useradmin' qn='org.osgi.service.useradmin'>
+<org.osgi.annotation.versioning.Version><value>1.1</value>
+</org.osgi.annotation.versioning.Version>
+   <lead>
+User Admin Package Version 1.1.
+   </lead>
+   <description>
+User Admin Package Version 1.1.
+ 
+ <p>
+ Bundles wishing to use this package must list the package in the
+ Import-Package header of the bundle's manifest. This package has two types of
+ users: the consumers that use the API in this package and the providers that
+ implement the API in this package.
+ 
+ </p><p>
+ Example import for consumers using the API in this package:
+ </p><p>
+ {@code  Import-Package: org.osgi.service.useradmin; version="[1.1,2.0)"}
+ </p><p>
+ Example import for providers implementing the API in this package:
+ </p><p>
+ {@code  Import-Package: org.osgi.service.useradmin; version="[1.1,1.2)"}</p>
+   </description>
+<author>@author $Id: 0441a509f8b9d1720f1c616552e3c52fc225951e $</author>
+  <class name='Authorization' fqn='org.osgi.service.useradmin.Authorization' qn='Authorization' package='org.osgi.service.useradmin' typeParam='' modifiers='public abstract' interface='yes' kind='INTERFACE'>
+   <lead>
+The {@code Authorization} interface encapsulates an authorization context on
+ which bundles can base authorization decisions, where appropriate.
+   </lead>
+   <description>
+The {@code Authorization} interface encapsulates an authorization context on
+ which bundles can base authorization decisions, where appropriate.
+ <p>
+ Bundles associate the privilege to access restricted resources or operations
+ with roles. Before granting access to a restricted resource or operation, a
+ bundle will check if the {@code Authorization} object passed to it possess
+ the required role, by calling its {@code hasRole} method.
+ </p><p>
+ Authorization contexts are instantiated by calling the
+ {@link UserAdmin#getAuthorization(User)} method.
+ 
+ </p><p>
+ <i>Trusting Authorization objects </i>
+ </p><p>
+ There are no restrictions regarding the creation of {@code Authorization}
+ objects. Hence, a service must only accept {@code Authorization} objects from
+ bundles that has been authorized to use the service using code based (or Java
+ 2) permissions.
+ 
+ </p><p>
+ In some cases it is useful to use {@code ServicePermission} to do the code
+ based access control. A service basing user access control on
+ {@code Authorization} objects passed to it, will then require that a calling
+ bundle has the {@code ServicePermission} to get the service in question. This
+ is the most convenient way. The OSGi environment will do the code based
+ permission check when the calling bundle attempts to get the service from the
+ service registry.
+ </p><p>
+ Example: A servlet using a service on a user's behalf. The bundle with the
+ servlet must be given the {@code ServicePermission} to get the Http Service.
+ </p><p>
+ However, in some cases the code based permission checks need to be more
+ fine-grained. A service might allow all bundles to get it, but require
+ certain code based permissions for some of its methods.
+ </p><p>
+ Example: A servlet using a service on a user's behalf, where some service
+ functionality is open to anyone, and some is restricted by code based
+ permissions. When a restricted method is called (e.g., one handing over an
+ {@code Authorization} object), the service explicitly checks that the calling
+ bundle has permission to make the call.</p>
+   </description>
+<noimplement></noimplement><author>@author $Id: 4b2af8f515d40cf0d189f387eb234afe5552f700 $</author>
+    <method name='getName' fqn='org.osgi.service.useradmin.Authorization.getName' qn='Authorization.getName()' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='String' qualifiedTypeName='java.lang.String' typeArgs='' dimension='' signature='()' flatSignature='()'>
+   <lead>
+Gets the name of the {@link User} that this {@code Authorization} context
+ was created for.
+   </lead>
+   <description>
+Gets the name of the {@link User} that this {@code Authorization} context
+ was created for.
+   </description>
+
+
+<return>The name of the {@link User} object that this
+         {@code Authorization} context was created for, or {@code null} if
+         no user was specified when this {@code Authorization} context was
+         created.</return>
+
+
+
+     </method>
+    <method name='hasRole' fqn='org.osgi.service.useradmin.Authorization.hasRole' qn='Authorization.hasRole(String)' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='boolean' qualifiedTypeName='boolean' typeArgs='' dimension='' signature='(java.lang.String)' flatSignature='(String)'>
+   <lead>
+Checks if the role with the specified name is implied by this
+ {@code Authorization} context.
+   </lead>
+   <description>
+Checks if the role with the specified name is implied by this
+ {@code Authorization} context.
+ <p>
+ 
+ Bundles must define globally unique role names that are associated with
+ the privilege of accessing restricted resources or operations. Operators
+ will grant users access to these resources, by creating a {@link Group}
+ object for each role and adding {@link User} objects to it.</p>
+   </description>
+
+<param name='name'>The name of the role to check for.</param>
+
+<return>{@code true} if this {@code Authorization} context implies the
+         specified role, otherwise {@code false}.</return>
+
+
+
+    <parameter name='name' dimension='' typeName='String' fqn='java.lang.String' varargs='false'/>
+     </method>
+    <method name='getRoles' fqn='org.osgi.service.useradmin.Authorization.getRoles' qn='Authorization.getRoles()' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='String[]' qualifiedTypeName='java.lang.String[]' typeArgs='' dimension='[]' signature='()' flatSignature='()'>
+   <lead>
+Gets the names of all roles implied by this {@code Authorization}
+ context.
+   </lead>
+   <description>
+Gets the names of all roles implied by this {@code Authorization}
+ context.
+   </description>
+
+
+<return>The names of all roles implied by this {@code Authorization}
+         context, or {@code null} if no roles are in the context. The
+         predefined role {@code user.anyone} will not be included in this
+         list.</return>
+
+
+
+     </method>
+  </class>
+  <class name='Group' fqn='org.osgi.service.useradmin.Group' qn='Group' package='org.osgi.service.useradmin' typeParam='' modifiers='public abstract' superclass='User' interface='yes' kind='INTERFACE'>
+   <lead>
+A named grouping of roles ({@code Role} objects).
+   </lead>
+   <description>
+A named grouping of roles ({@code Role} objects).
+ <p>
+ Whether or not a given {@code Authorization} context implies a {@code Group}
+ object depends on the members of that {@code Group} object.
+ </p><p>
+ A {@code Group} object can have two kinds of members: <i>basic </i> and
+ <i>required </i>. A {@code Group} object is implied by an
+ {@code Authorization} context if all of its required members are implied and
+ at least one of its basic members is implied.
+ </p><p>
+ A {@code Group} object must contain at least one basic member in order to be
+ implied. In other words, a {@code Group} object without any basic member
+ roles is never implied by any {@code Authorization} context.
+ </p><p>
+ A {@code User} object always implies itself.
+ </p><p>
+ No loop detection is performed when adding members to {@code Group} objects,
+ which means that it is possible to create circular implications. Loop
+ detection is instead done when roles are checked. The semantics is that if a
+ role depends on itself (i.e., there is an implication loop), the role is not
+ implied.
+ </p><p>
+ The rule that a {@code Group} object must have at least one basic member to
+ be implied is motivated by the following example:
+ 
+ </p><pre>&#8194;<br/>&#8194;&#8194;group&#8194;foo<br/>&#8194;&#8194;&#8194;&#8194;required&#8194;members:&#8194;marketing<br/>&#8194;&#8194;&#8194;&#8194;basic&#8194;members:&#8194;alice,&#8194;bob</pre>
+ 
+ Privileged operations that require membership in "foo" can be performed only
+ by "alice" and "bob", who are in marketing.
+ <p>
+ If "alice" and "bob" ever transfer to a different department, anybody in
+ marketing will be able to assume the "foo" role, which certainly must be
+ prevented. Requiring that "foo" (or any {@code Group} object for that matter)
+ must have at least one basic member accomplishes that.
+ </p><p>
+ However, this would make it impossible for a {@code Group} object to be
+ implied by just its required members. An example where this implication might
+ be useful is the following declaration: "Any citizen who is an adult is
+ allowed to vote." An intuitive configuration of "voter" would be:
+ 
+ </p><pre>&#8194;<br/>&#8194;&#8194;group&#8194;voter<br/>&#8194;&#8194;&#8194;&#8194;required&#8194;members:&#8194;citizen,&#8194;adult<br/>&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;basic&#8194;members:</pre>
+ 
+ However, according to the above rule, the "voter" role could never be assumed
+ by anybody, since it lacks any basic members. In order to address this issue
+ a predefined role named "user.anyone" can be specified, which is always
+ implied. The desired implication of the "voter" group can then be achieved by
+ specifying "user.anyone" as its basic member, as follows:
+ 
+ <pre>&#8194;<br/>&#8194;&#8194;group&#8194;voter<br/>&#8194;&#8194;&#8194;&#8194;required&#8194;members:&#8194;citizen,&#8194;adult<br/>&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;basic&#8194;members:&#8194;user.anyone</pre>
+   </description>
+<noimplement></noimplement><author>@author $Id: d6955b75e61e8773ca49b62cbbacca8cb37bd982 $</author>
+<implements name='User' fqn='org.osgi.service.useradmin.User' qn='User' package='org.osgi.service.useradmin' local='org.osgi.service.useradmin.Group'/>
+    <method name='addMember' fqn='org.osgi.service.useradmin.Group.addMember' qn='Group.addMember(Role)' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='boolean' qualifiedTypeName='boolean' typeArgs='' dimension='' signature='(org.osgi.service.useradmin.Role)' flatSignature='(Role)'>
+   <lead>
+Adds the specified {@code Role} object as a basic member to this
+ {@code Group} object.
+   </lead>
+   <description>
+Adds the specified {@code Role} object as a basic member to this
+ {@code Group} object.
+   </description>
+
+<param name='role'>The role to add as a basic member.</param>
+
+<return>{@code true} if the given role could be added as a basic member,
+         and {@code false} if this {@code Group} object already contains a
+         {@code Role} object whose name matches that of the specified
+         role.</return>
+
+<throws name='SecurityException'>If a security manager exists and the caller
+         does not have the {@code UserAdminPermission} with name
+         {@code admin}.</throws>
+
+
+    <parameter name='role' dimension='' typeName='Role' fqn='org.osgi.service.useradmin.Role' varargs='false'/>
+     </method>
+    <method name='addRequiredMember' fqn='org.osgi.service.useradmin.Group.addRequiredMember' qn='Group.addRequiredMember(Role)' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='boolean' qualifiedTypeName='boolean' typeArgs='' dimension='' signature='(org.osgi.service.useradmin.Role)' flatSignature='(Role)'>
+   <lead>
+Adds the specified {@code Role} object as a required member to this
+ {@code Group} object.
+   </lead>
+   <description>
+Adds the specified {@code Role} object as a required member to this
+ {@code Group} object.
+   </description>
+
+<param name='role'>The {@code Role} object to add as a required member.</param>
+
+<return>{@code true} if the given {@code Role} object could be added as a
+         required member, and {@code false} if this {@code Group} object
+         already contains a {@code Role} object whose name matches that of
+         the specified role.</return>
+
+<throws name='SecurityException'>If a security manager exists and the caller
+         does not have the {@code UserAdminPermission} with name
+         {@code admin}.</throws>
+
+
+    <parameter name='role' dimension='' typeName='Role' fqn='org.osgi.service.useradmin.Role' varargs='false'/>
+     </method>
+    <method name='removeMember' fqn='org.osgi.service.useradmin.Group.removeMember' qn='Group.removeMember(Role)' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='boolean' qualifiedTypeName='boolean' typeArgs='' dimension='' signature='(org.osgi.service.useradmin.Role)' flatSignature='(Role)'>
+   <lead>
+Removes the specified {@code Role} object from this {@code Group} object.
+   </lead>
+   <description>
+Removes the specified {@code Role} object from this {@code Group} object.
+   </description>
+
+<param name='role'>The {@code Role} object to remove from this {@code Group}
+        object.</param>
+
+<return>{@code true} if the {@code Role} object could be removed,
+         otherwise {@code false}.</return>
+
+<throws name='SecurityException'>If a security manager exists and the caller
+         does not have the {@code UserAdminPermission} with name
+         {@code admin}.</throws>
+
+
+    <parameter name='role' dimension='' typeName='Role' fqn='org.osgi.service.useradmin.Role' varargs='false'/>
+     </method>
+    <method name='getMembers' fqn='org.osgi.service.useradmin.Group.getMembers' qn='Group.getMembers()' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='Role[]' qualifiedTypeName='org.osgi.service.useradmin.Role[]' typeArgs='' dimension='[]' signature='()' flatSignature='()'>
+   <lead>
+Gets the basic members of this {@code Group} object.
+   </lead>
+   <description>
+Gets the basic members of this {@code Group} object.
+   </description>
+
+
+<return>The basic members of this {@code Group} object, or {@code null}
+         if this {@code Group} object does not contain any basic members.</return>
+
+
+
+     </method>
+    <method name='getRequiredMembers' fqn='org.osgi.service.useradmin.Group.getRequiredMembers' qn='Group.getRequiredMembers()' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='Role[]' qualifiedTypeName='org.osgi.service.useradmin.Role[]' typeArgs='' dimension='[]' signature='()' flatSignature='()'>
+   <lead>
+Gets the required members of this {@code Group} object.
+   </lead>
+   <description>
+Gets the required members of this {@code Group} object.
+   </description>
+
+
+<return>The required members of this {@code Group} object, or
+         {@code null} if this {@code Group} object does not contain any
+         required members.</return>
+
+
+
+     </method>
+  </class>
+  <class name='Role' fqn='org.osgi.service.useradmin.Role' qn='Role' package='org.osgi.service.useradmin' typeParam='' modifiers='public abstract' interface='yes' kind='INTERFACE'>
+   <lead>
+The base interface for {@code Role} objects managed by the User Admin
+ service.
+   </lead>
+   <description>
+The base interface for {@code Role} objects managed by the User Admin
+ service.
+ 
+ <p>
+ This interface exposes the characteristics shared by all {@code Role}
+ classes: a name, a type, and a set of properties.
+ </p><p>
+ Properties represent public information about the {@code Role} object that
+ can be read by anyone. Specific {@link UserAdminPermission} objects are
+ required to change a {@code Role} object's properties.
+ </p><p>
+ {@code Role} object properties are {@code Dictionary} objects. Changes to
+ these objects are propagated to the User Admin service and made persistent.
+ </p><p>
+ Every User Admin service contains a set of predefined {@code Role} objects
+ that are always present and cannot be removed. All predefined {@code Role}
+ objects are of type {@code ROLE}. This version of the
+ {@code org.osgi.service.useradmin} package defines a single predefined role
+ named &quot;user.anyone&quot;, which is inherited by any other role. Other
+ predefined roles may be added in the future. Since &quot;user.anyone&quot; is
+ a {@code Role} object that has properties associated with it that can be read
+ and modified. Access to these properties and their use is application
+ specific and is controlled using {@code UserAdminPermission} in the same way
+ that properties for other {@code Role} objects are.</p>
+   </description>
+<noimplement></noimplement><author>@author $Id: 8b4ac6a7594c6652fc80fa00f3a74a3219d12f09 $</author>
+    <method name='getName' fqn='org.osgi.service.useradmin.Role.getName' qn='Role.getName()' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='String' qualifiedTypeName='java.lang.String' typeArgs='' dimension='' signature='()' flatSignature='()'>
+   <lead>
+Returns the name of this role.
+   </lead>
+   <description>
+Returns the name of this role.
+   </description>
+
+
+<return>The role's name.</return>
+
+
+
+     </method>
+    <method name='getType' fqn='org.osgi.service.useradmin.Role.getType' qn='Role.getType()' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='int' qualifiedTypeName='int' typeArgs='' dimension='' signature='()' flatSignature='()'>
+   <lead>
+Returns the type of this role.
+   </lead>
+   <description>
+Returns the type of this role.
+   </description>
+
+
+<return>The role's type.</return>
+
+
+
+     </method>
+    <method name='getProperties' fqn='org.osgi.service.useradmin.Role.getProperties' qn='Role.getProperties()' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='Dictionary&lt;String, Object&gt;' qualifiedTypeName='java.util.Dictionary' typeArgs='' dimension='' signature='()' flatSignature='()'>
+   <lead>
+Returns a {@code Dictionary} of the (public) properties of this
+ {@code Role} object.
+   </lead>
+   <description>
+Returns a {@code Dictionary} of the (public) properties of this
+ {@code Role} object. Any changes to the returned {@code Dictionary} will
+ change the properties of this {@code Role} object. This will cause a
+ {@code UserAdminEvent} object of type {@link UserAdminEvent#ROLE_CHANGED}
+ to be broadcast to any {@code UserAdminListener} objects.
+ 
+ <p>
+ Only objects of type {@code String} may be used as property keys, and
+ only objects of type {@code String} or {@code byte[]} may be used as
+ property values. Any other types will cause an exception of type
+ {@code IllegalArgumentException} to be raised.
+ 
+ </p><p>
+ In order to add, change, or remove a property in the returned
+ {@code Dictionary}, a {@link UserAdminPermission} named after the
+ property name (or a prefix of it) with action {@code changeProperty} is
+ required.</p>
+   </description>
+
+
+<return>{@code Dictionary} containing the properties of this {@code Role}
+         object.</return>
+
+
+
+     </method>
+    <field name='USER_ANYONE' fqn='org.osgi.service.useradmin.Role.USER_ANYONE' qn='Role.USER_ANYONE' package='org.osgi.service.useradmin' modifiers='public static final' typeName='String' qualifiedTypeName='java.lang.String' dimension='' constantValue='"user.anyone"'>
+   <lead>
+The name of the predefined role, user.anyone, that all users and groups
+ belong to.
+   </lead>
+   <description>
+The name of the predefined role, user.anyone, that all users and groups
+ belong to.
+   </description>
+<since>@since 1.1</since>
+     </field>
+    <field name='ROLE' fqn='org.osgi.service.useradmin.Role.ROLE' qn='Role.ROLE' package='org.osgi.service.useradmin' modifiers='public static final' typeName='int' qualifiedTypeName='int' dimension='' constantValue='0'>
+   <lead>
+The type of a predefined role.
+   </lead>
+   <description>
+The type of a predefined role.
+ 
+ <p>
+ The value of {@code ROLE} is 0.</p>
+   </description>
+
+     </field>
+    <field name='USER' fqn='org.osgi.service.useradmin.Role.USER' qn='Role.USER' package='org.osgi.service.useradmin' modifiers='public static final' typeName='int' qualifiedTypeName='int' dimension='' constantValue='1'>
+   <lead>
+The type of a {@link User} role.
+   </lead>
+   <description>
+The type of a {@link User} role.
+ 
+ <p>
+ The value of {@code USER} is 1.</p>
+   </description>
+
+     </field>
+    <field name='GROUP' fqn='org.osgi.service.useradmin.Role.GROUP' qn='Role.GROUP' package='org.osgi.service.useradmin' modifiers='public static final' typeName='int' qualifiedTypeName='int' dimension='' constantValue='2'>
+   <lead>
+The type of a {@link Group} role.
+   </lead>
+   <description>
+The type of a {@link Group} role.
+ 
+ <p>
+ The value of {@code GROUP} is 2.</p>
+   </description>
+
+     </field>
+  </class>
+  <class name='User' fqn='org.osgi.service.useradmin.User' qn='User' package='org.osgi.service.useradmin' typeParam='' modifiers='public abstract' superclass='Role' interface='yes' kind='INTERFACE'>
+   <lead>
+A {@code User} role managed by a User Admin service.
+   </lead>
+   <description>
+A {@code User} role managed by a User Admin service.
+ 
+ <p>
+ In this context, the term &quot;user&quot; is not limited to just human
+ beings. Instead, it refers to any entity that may have any number of
+ credentials associated with it that it may use to authenticate itself.
+ </p><p>
+ In general, {@code User} objects are associated with a specific User Admin
+ service (namely the one that created them), and cannot be used with other
+ User Admin services.
+ </p><p>
+ A {@code User} object may have credentials (and properties, inherited from
+ the {@link Role} class) associated with it. Specific
+ {@link UserAdminPermission} objects are required to read or change a
+ {@code User} object's credentials.
+ </p><p>
+ Credentials are {@code Dictionary} objects and have semantics that are
+ similar to the properties in the {@code Role} class.</p>
+   </description>
+<noimplement></noimplement><author>@author $Id: 107799c7cddf7a85ee3bb60d1fa5c7cec6d66b9e $</author>
+<implements name='Role' fqn='org.osgi.service.useradmin.Role' qn='Role' package='org.osgi.service.useradmin' local='org.osgi.service.useradmin.User'/>
+    <method name='getCredentials' fqn='org.osgi.service.useradmin.User.getCredentials' qn='User.getCredentials()' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='Dictionary&lt;String, Object&gt;' qualifiedTypeName='java.util.Dictionary' typeArgs='' dimension='' signature='()' flatSignature='()'>
+   <lead>
+Returns a {@code Dictionary} of the credentials of this {@code User}
+ object.
+   </lead>
+   <description>
+Returns a {@code Dictionary} of the credentials of this {@code User}
+ object. Any changes to the returned {@code Dictionary} object will change
+ the credentials of this {@code User} object. This will cause a
+ {@code UserAdminEvent} object of type {@link UserAdminEvent#ROLE_CHANGED}
+ to be broadcast to any {@code UserAdminListeners} objects.
+ 
+ <p>
+ Only objects of type {@code String} may be used as credential keys, and
+ only objects of type {@code String} or of type {@code byte[]} may be used
+ as credential values. Any other types will cause an exception of type
+ {@code IllegalArgumentException} to be raised.
+ 
+ </p><p>
+ In order to retrieve a credential from the returned {@code Dictionary}
+ object, a {@link UserAdminPermission} named after the credential name (or
+ a prefix of it) with action {@code getCredential} is required.
+ </p><p>
+ In order to add or remove a credential from the returned
+ {@code Dictionary} object, a {@link UserAdminPermission} named after the
+ credential name (or a prefix of it) with action {@code changeCredential}
+ is required.</p>
+   </description>
+
+
+<return>{@code Dictionary} object containing the credentials of this
+         {@code User} object.</return>
+
+
+
+     </method>
+    <method name='hasCredential' fqn='org.osgi.service.useradmin.User.hasCredential' qn='User.hasCredential(String,Object)' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='boolean' qualifiedTypeName='boolean' typeArgs='' dimension='' signature='(java.lang.String,java.lang.Object)' flatSignature='(String,Object)'>
+   <lead>
+Checks to see if this {@code User} object has a credential with the
+ specified {@code key} set to the specified {@code value}.
+   </lead>
+   <description>
+Checks to see if this {@code User} object has a credential with the
+ specified {@code key} set to the specified {@code value}.
+ 
+ <p>
+ If the specified credential {@code value} is not of type {@code String}
+ or {@code byte[]}, it is ignored, that is, {@code false} is returned (as
+ opposed to an {@code IllegalArgumentException} being raised).</p>
+   </description>
+
+<param name='key'>The credential {@code key}.</param>
+<param name='value'>The credential {@code value}.</param>
+
+<return>{@code true} if this user has the specified credential;
+         {@code false} otherwise.</return>
+
+<throws name='SecurityException'>If a security manager exists and the caller
+         does not have the {@code UserAdminPermission} named after the
+         credential key (or a prefix of it) with action
+         {@code getCredential}.</throws>
+
+
+    <parameter name='key' dimension='' typeName='String' fqn='java.lang.String' varargs='false'/>
+    <parameter name='value' dimension='' typeName='Object' fqn='java.lang.Object' varargs='false'/>
+     </method>
+  </class>
+  <class name='UserAdmin' fqn='org.osgi.service.useradmin.UserAdmin' qn='UserAdmin' package='org.osgi.service.useradmin' typeParam='' modifiers='public abstract' interface='yes' kind='INTERFACE'>
+   <lead>
+This interface is used to manage a database of named {@code Role} objects,
+ which can be used for authentication and authorization purposes.
+   </lead>
+   <description>
+This interface is used to manage a database of named {@code Role} objects,
+ which can be used for authentication and authorization purposes.
+ 
+ <p>
+ This version of the User Admin service defines two types of {@code Role}
+ objects: "User" and "Group". Each type of role is represented by an
+ {@code int} constant and an interface. The range of positive integers is
+ reserved for new types of roles that may be added in the future. When
+ defining proprietary role types, negative constant values must be used.
+ 
+ </p><p>
+ Every role has a name and a type.
+ 
+ </p><p>
+ A {@link User} object can be configured with credentials (e.g., a password)
+ and properties (e.g., a street address, phone number, etc.).
+ </p><p>
+ A {@link Group} object represents an aggregation of {@link User} and
+ {@link Group} objects. In other words, the members of a {@code Group} object
+ are roles themselves.
+ </p><p>
+ Every User Admin service manages and maintains its own namespace of
+ {@code Role} objects, in which each {@code Role} object has a unique name.</p>
+   </description>
+<noimplement></noimplement><author>@author $Id: eb978936098e48507b342496a925f760c2282bfa $</author>
+    <method name='createRole' fqn='org.osgi.service.useradmin.UserAdmin.createRole' qn='UserAdmin.createRole(String,int)' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='Role' qualifiedTypeName='org.osgi.service.useradmin.Role' typeArgs='' dimension='' signature='(java.lang.String,int)' flatSignature='(String,int)'>
+   <lead>
+Creates a {@code Role} object with the given name and of the given type.
+   </lead>
+   <description>
+Creates a {@code Role} object with the given name and of the given type.
+ 
+ <p>
+ If a {@code Role} object was created, a {@code UserAdminEvent} object of
+ type {@link UserAdminEvent#ROLE_CREATED} is broadcast to any
+ {@code UserAdminListener} object.</p>
+   </description>
+
+<param name='name'>The {@code name} of the {@code Role} object to create.</param>
+<param name='type'>The type of the {@code Role} object to create. Must be either
+        a {@link Role#USER} type or {@link Role#GROUP} type.</param>
+
+<return>The newly created {@code Role} object, or {@code null} if a role
+         with the given name already exists.</return>
+
+<throws name='IllegalArgumentException'>if {@code type} is invalid.</throws>
+<throws name='SecurityException'>If a security manager exists and the caller
+         does not have the {@code UserAdminPermission} with name
+         {@code admin}.</throws>
+
+
+    <parameter name='name' dimension='' typeName='String' fqn='java.lang.String' varargs='false'/>
+    <parameter name='type' dimension='' typeName='int' fqn='int' varargs='false'/>
+     </method>
+    <method name='removeRole' fqn='org.osgi.service.useradmin.UserAdmin.removeRole' qn='UserAdmin.removeRole(String)' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='boolean' qualifiedTypeName='boolean' typeArgs='' dimension='' signature='(java.lang.String)' flatSignature='(String)'>
+   <lead>
+Removes the {@code Role} object with the given name from this User Admin
+ service and all groups it is a member of.
+   </lead>
+   <description>
+Removes the {@code Role} object with the given name from this User Admin
+ service and all groups it is a member of.
+ 
+ <p>
+ If the {@code Role} object was removed, a {@code UserAdminEvent} object
+ of type {@link UserAdminEvent#ROLE_REMOVED} is broadcast to any
+ {@code UserAdminListener} object.</p>
+   </description>
+
+<param name='name'>The name of the {@code Role} object to remove.</param>
+
+<return>{@code true} If a {@code Role} object with the given name is
+         present in this User Admin service and could be removed,
+         otherwise {@code false}.</return>
+
+<throws name='SecurityException'>If a security manager exists and the caller
+         does not have the {@code UserAdminPermission} with name
+         {@code admin}.</throws>
+
+
+    <parameter name='name' dimension='' typeName='String' fqn='java.lang.String' varargs='false'/>
+     </method>
+    <method name='getRole' fqn='org.osgi.service.useradmin.UserAdmin.getRole' qn='UserAdmin.getRole(String)' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='Role' qualifiedTypeName='org.osgi.service.useradmin.Role' typeArgs='' dimension='' signature='(java.lang.String)' flatSignature='(String)'>
+   <lead>
+Gets the {@code Role} object with the given {@code name} from this User
+ Admin service.
+   </lead>
+   <description>
+Gets the {@code Role} object with the given {@code name} from this User
+ Admin service.
+   </description>
+
+<param name='name'>The name of the {@code Role} object to get.</param>
+
+<return>The requested {@code Role} object, or {@code null} if this User
+         Admin service does not have a {@code Role} object with the given
+         {@code name}.</return>
+
+
+
+    <parameter name='name' dimension='' typeName='String' fqn='java.lang.String' varargs='false'/>
+     </method>
+    <method name='getRoles' fqn='org.osgi.service.useradmin.UserAdmin.getRoles' qn='UserAdmin.getRoles(String)' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='Role[]' qualifiedTypeName='org.osgi.service.useradmin.Role[]' typeArgs='' dimension='[]' signature='(java.lang.String)' flatSignature='(String)'>
+   <lead>
+Gets the {@code Role} objects managed by this User Admin service that
+ have properties matching the specified LDAP filter criteria.
+   </lead>
+   <description>
+Gets the {@code Role} objects managed by this User Admin service that
+ have properties matching the specified LDAP filter criteria. See
+ {@code org.osgi.framework.Filter} for a description of the filter syntax.
+ If a {@code null} filter is specified, all Role objects managed by this
+ User Admin service are returned.
+   </description>
+
+<param name='filter'>The filter criteria to match.</param>
+
+<return>The {@code Role} objects managed by this User Admin service whose
+         properties match the specified filter criteria, or all
+         {@code Role} objects if a {@code null} filter is specified. If no
+         roles match the filter, {@code null} will be returned.</return>
+
+<throws name='InvalidSyntaxException'>If the filter is not well formed.</throws>
+
+
+    <parameter name='filter' dimension='' typeName='String' fqn='java.lang.String' varargs='false'/>
+<exception name='InvalidSyntaxException' fqn='org.osgi.framework.InvalidSyntaxException'/>
+     </method>
+    <method name='getUser' fqn='org.osgi.service.useradmin.UserAdmin.getUser' qn='UserAdmin.getUser(String,String)' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='User' qualifiedTypeName='org.osgi.service.useradmin.User' typeArgs='' dimension='' signature='(java.lang.String,java.lang.String)' flatSignature='(String,String)'>
+   <lead>
+Gets the user with the given property {@code key}-{@code value} pair from
+ the User Admin service database.
+   </lead>
+   <description>
+Gets the user with the given property {@code key}-{@code value} pair from
+ the User Admin service database. This is a convenience method for
+ retrieving a {@code User} object based on a property for which every
+ {@code User} object is supposed to have a unique value (within the scope
+ of this User Admin service), such as for example a X.500 distinguished
+ name.
+   </description>
+
+<param name='key'>The property key to look for.</param>
+<param name='value'>The property value to compare with.</param>
+
+<return>A matching user, if <em>exactly</em> one is found. If zero or
+         more than one matching users are found, {@code null} is returned.</return>
+
+
+
+    <parameter name='key' dimension='' typeName='String' fqn='java.lang.String' varargs='false'/>
+    <parameter name='value' dimension='' typeName='String' fqn='java.lang.String' varargs='false'/>
+     </method>
+    <method name='getAuthorization' fqn='org.osgi.service.useradmin.UserAdmin.getAuthorization' qn='UserAdmin.getAuthorization(User)' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='Authorization' qualifiedTypeName='org.osgi.service.useradmin.Authorization' typeArgs='' dimension='' signature='(org.osgi.service.useradmin.User)' flatSignature='(User)'>
+   <lead>
+Creates an {@code Authorization} object that encapsulates the specified
+ {@code User} object and the {@code Role} objects it possesses.
+   </lead>
+   <description>
+Creates an {@code Authorization} object that encapsulates the specified
+ {@code User} object and the {@code Role} objects it possesses. The
+ {@code null} user is interpreted as the anonymous user. The anonymous
+ user represents a user that has not been authenticated. An
+ {@code Authorization} object for an anonymous user will be unnamed, and
+ will only imply groups that user.anyone implies.
+   </description>
+
+<param name='user'>The {@code User} object to create an {@code Authorization}
+        object for, or {@code null} for the anonymous user.</param>
+
+<return>the {@code Authorization} object for the specified {@code User}
+         object.</return>
+
+
+
+    <parameter name='user' dimension='' typeName='User' fqn='org.osgi.service.useradmin.User' varargs='false'/>
+     </method>
+  </class>
+  <class name='UserAdminEvent' fqn='org.osgi.service.useradmin.UserAdminEvent' qn='UserAdminEvent' package='org.osgi.service.useradmin' typeParam='' modifiers='public class' kind='CLASS'>
+   <lead>
+{@code Role} change event.
+   </lead>
+   <description>
+{@code Role} change event.
+ <p>
+ {@code UserAdminEvent} objects are delivered asynchronously to any
+ {@code UserAdminListener} objects when a change occurs in any of the
+ {@code Role} objects managed by a User Admin service.
+ 
+ </p><p>
+ A type code is used to identify the event. The following event types are
+ defined: {@link #ROLE_CREATED} type, {@link #ROLE_CHANGED} type, and
+ {@link #ROLE_REMOVED} type. Additional event types may be defined in the
+ future.</p>
+   </description>
+<a href='#UserAdmin'>UserAdmin</a><a href='#UserAdminListener'>UserAdminListener</a><author>@author $Id: 2406ed14d59d91f340cc918e851d8ef89c901cb0 $</author>
+    <method name='UserAdminEvent' fqn='org.osgi.service.useradmin.UserAdminEvent.UserAdminEvent' qn='UserAdminEvent.UserAdminEvent(ServiceReference,int,Role)' package='org.osgi.service.useradmin' typeArgs='' modifiers='public' signature='(org.osgi.framework.ServiceReference&lt;org.osgi.service.useradmin.UserAdmin&gt;,int,org.osgi.service.useradmin.Role)' flatSignature='(ServiceReference,int,Role)' isConstructor='true'>
+   <lead>
+Constructs a {@code UserAdminEvent} object from the given
+ {@code ServiceReference} object, event type, and {@code Role} object.
+   </lead>
+   <description>
+Constructs a {@code UserAdminEvent} object from the given
+ {@code ServiceReference} object, event type, and {@code Role} object.
+   </description>
+
+<param name='ref'>The {@code ServiceReference} object of the User Admin service
+        that generated this event.</param>
+<param name='type'>The event type.</param>
+<param name='role'>The {@code Role} object on which this event occurred.</param>
+
+
+
+
+    <parameter name='ref' dimension='' typeName='ServiceReference&lt;UserAdmin&gt;' fqn='org.osgi.framework.ServiceReference' varargs='false'/>
+    <parameter name='type' dimension='' typeName='int' fqn='int' varargs='false'/>
+    <parameter name='role' dimension='' typeName='Role' fqn='org.osgi.service.useradmin.Role' varargs='false'/>
+     </method>
+    <method name='getServiceReference' fqn='org.osgi.service.useradmin.UserAdminEvent.getServiceReference' qn='UserAdminEvent.getServiceReference()' package='org.osgi.service.useradmin' modifiers='public' typeName='ServiceReference&lt;UserAdmin&gt;' qualifiedTypeName='org.osgi.framework.ServiceReference' typeArgs='' dimension='' signature='()' flatSignature='()'>
+   <lead>
+Gets the {@code ServiceReference} object of the User Admin service that
+ generated this event.
+   </lead>
+   <description>
+Gets the {@code ServiceReference} object of the User Admin service that
+ generated this event.
+   </description>
+
+
+<return>The User Admin service's {@code ServiceReference} object.</return>
+
+
+
+     </method>
+    <method name='getType' fqn='org.osgi.service.useradmin.UserAdminEvent.getType' qn='UserAdminEvent.getType()' package='org.osgi.service.useradmin' modifiers='public' typeName='int' qualifiedTypeName='int' typeArgs='' dimension='' signature='()' flatSignature='()'>
+   <lead>
+Returns the type of this event.
+   </lead>
+   <description>
+Returns the type of this event.
+ 
+ <p>
+ The type values are {@link #ROLE_CREATED} type, {@link #ROLE_CHANGED}
+ type, and {@link #ROLE_REMOVED} type.</p>
+   </description>
+
+
+<return>The event type.</return>
+
+
+
+     </method>
+    <method name='getRole' fqn='org.osgi.service.useradmin.UserAdminEvent.getRole' qn='UserAdminEvent.getRole()' package='org.osgi.service.useradmin' modifiers='public' typeName='Role' qualifiedTypeName='org.osgi.service.useradmin.Role' typeArgs='' dimension='' signature='()' flatSignature='()'>
+   <lead>
+Gets the {@code Role} object this event was generated for.
+   </lead>
+   <description>
+Gets the {@code Role} object this event was generated for.
+   </description>
+
+
+<return>The {@code Role} object this event was generated for.</return>
+
+
+
+     </method>
+    <field name='ROLE_CREATED' fqn='org.osgi.service.useradmin.UserAdminEvent.ROLE_CREATED' qn='UserAdminEvent.ROLE_CREATED' package='org.osgi.service.useradmin' modifiers='public static final' typeName='int' qualifiedTypeName='int' dimension='' constantValue='1'>
+   <lead>
+A {@code Role} object has been created.
+   </lead>
+   <description>
+A {@code Role} object has been created.
+ 
+ <p>
+ The value of {@code ROLE_CREATED} is 0x00000001.</p>
+   </description>
+
+     </field>
+    <field name='ROLE_CHANGED' fqn='org.osgi.service.useradmin.UserAdminEvent.ROLE_CHANGED' qn='UserAdminEvent.ROLE_CHANGED' package='org.osgi.service.useradmin' modifiers='public static final' typeName='int' qualifiedTypeName='int' dimension='' constantValue='2'>
+   <lead>
+A {@code Role} object has been modified.
+   </lead>
+   <description>
+A {@code Role} object has been modified.
+ 
+ <p>
+ The value of {@code ROLE_CHANGED} is 0x00000002.</p>
+   </description>
+
+     </field>
+    <field name='ROLE_REMOVED' fqn='org.osgi.service.useradmin.UserAdminEvent.ROLE_REMOVED' qn='UserAdminEvent.ROLE_REMOVED' package='org.osgi.service.useradmin' modifiers='public static final' typeName='int' qualifiedTypeName='int' dimension='' constantValue='4'>
+   <lead>
+A {@code Role} object has been removed.
+   </lead>
+   <description>
+A {@code Role} object has been removed.
+ 
+ <p>
+ The value of {@code ROLE_REMOVED} is 0x00000004.</p>
+   </description>
+
+     </field>
+  </class>
+  <class name='UserAdminListener' fqn='org.osgi.service.useradmin.UserAdminListener' qn='UserAdminListener' package='org.osgi.service.useradmin' typeParam='' modifiers='public abstract' interface='yes' kind='INTERFACE'>
+   <lead>
+Listener for UserAdminEvents.
+   </lead>
+   <description>
+Listener for UserAdminEvents.
+ 
+ <p>
+ {@code UserAdminListener} objects are registered with the Framework service
+ registry and notified with a {@code UserAdminEvent} object when a
+ {@code Role} object has been created, removed, or modified.
+ </p><p>
+ {@code UserAdminListener} objects can further inspect the received
+ {@code UserAdminEvent} object to determine its type, the {@code Role} object
+ it occurred on, and the User Admin service that generated it.</p>
+   </description>
+<a href='#UserAdmin'>UserAdmin</a><a href='#UserAdminEvent'>UserAdminEvent</a><author>@author $Id: 635ccb0fde2d7d62ed59d1f716095039ccbdd000 $</author>
+    <method name='roleChanged' fqn='org.osgi.service.useradmin.UserAdminListener.roleChanged' qn='UserAdminListener.roleChanged(UserAdminEvent)' package='org.osgi.service.useradmin' modifiers='public abstract' typeName='void' qualifiedTypeName='void' typeArgs='' dimension='' signature='(org.osgi.service.useradmin.UserAdminEvent)' flatSignature='(UserAdminEvent)'>
+   <lead>
+Receives notification that a {@code Role} object has been created,
+ removed, or modified.
+   </lead>
+   <description>
+Receives notification that a {@code Role} object has been created,
+ removed, or modified.
+   </description>
+
+<param name='event'>The {@code UserAdminEvent} object.</param>
+
+
+
+
+    <parameter name='event' dimension='' typeName='UserAdminEvent' fqn='org.osgi.service.useradmin.UserAdminEvent' varargs='false'/>
+     </method>
+  </class>
+  <class name='UserAdminPermission' fqn='org.osgi.service.useradmin.UserAdminPermission' qn='UserAdminPermission' package='org.osgi.service.useradmin' typeParam='' modifiers='public final class' superclass='BasicPermission' kind='CLASS'>
+   <lead>
+Permission to configure and access the {@link Role} objects managed by a User
+ Admin service.
+   </lead>
+   <description>
+Permission to configure and access the {@link Role} objects managed by a User
+ Admin service.
+ 
+ <p>
+ This class represents access to the {@code Role} objects managed by a User
+ Admin service and their properties and credentials (in the case of
+ {@link User} objects).
+ </p><p>
+ The permission name is the name (or name prefix) of a property or credential.
+ The naming convention follows the hierarchical property naming convention.
+ Also, an asterisk may appear at the end of the name, following a
+ &quot;.&quot;, or by itself, to signify a wildcard match. For example:
+ &quot;org.osgi.security.protocol.*&quot; or &quot;*&quot; is valid, but
+ &quot;*protocol&quot; or &quot;a*b&quot; are not valid.
+ 
+ </p><p>
+ The {@code UserAdminPermission} with the reserved name &quot;admin&quot;
+ represents the permission required for creating and removing {@code Role}
+ objects in the User Admin service, as well as adding and removing members in
+ a {@code Group} object. This {@code UserAdminPermission} does not have any
+ actions associated with it.
+ 
+ </p><p>
+ The actions to be granted are passed to the constructor in a string
+ containing a list of one or more comma-separated keywords. The possible
+ keywords are: {@code changeProperty},{@code changeCredential}, and
+ {@code getCredential}. Their meaning is defined as follows:
+ 
+ </p><pre>&#8194;&#8194;action<br/>&#8194;&#8194;changeProperty&#8194;&#8194;&#8194;&#8194;Permission&#8194;to&#8194;change&#8194;(i.e.,&#8194;add&#8194;and&#8194;remove)<br/>&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;Role&#8194;object&#8194;properties&#8194;whose&#8194;names&#8194;start&#8194;with<br/>&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;the&#8194;name&#8194;argument&#8194;specified&#8194;in&#8194;the&#8194;constructor.<br/>&#8194;&#8194;changeCredential&#8194;&#8194;Permission&#8194;to&#8194;change&#8194;(i.e.,&#8194;add&#8194;and&#8194;remove)<br/>&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;User&#8194;object&#8194;credentials&#8194;whose&#8194;names&#8194;start<br/>&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;with&#8194;the&#8194;name&#8194;argument&#8194;specified&#8194;in&#8194;the&#8194;constructor.<br/>&#8194;&#8194;getCredential&#8194;&#8194;&#8194;&#8194;&#8194;Permission&#8194;to&#8194;retrieve&#8194;and&#8194;check&#8194;for&#8194;the<br/>&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;existence&#8194;of&#8194;User&#8194;object&#8194;credentials&#8194;whose&#8194;names<br/>&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;start&#8194;with&#8194;the&#8194;name&#8194;argument&#8194;specified&#8194;in&#8194;the<br/>&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;constructor.</pre>
+ 
+ The action string is converted to lowercase before processing.
+ 
+ <p>
+ Following is a PermissionInfo style policy entry which grants a user
+ administration bundle a number of {@code UserAdminPermission} object:
+ 
+ </p><pre>&#8194;&#8194;(org.osgi.service.useradmin.UserAdminPermission&#8194;&quot;admin&quot;)<br/>&#8194;&#8194;(org.osgi.service.useradmin.UserAdminPermission&#8194;&quot;com.foo.*&quot;<br/>&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&quot;changeProperty,getCredential,changeCredential&quot;)<br/>&#8194;&#8194;(org.osgi.service.useradmin.UserAdminPermission&#8194;&quot;user.*&quot;<br/>&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&quot;changeProperty,changeCredential&quot;)</pre>
+ 
+ The first permission statement grants the bundle the permission to perform
+ any User Admin service operations of type "admin", that is, create and remove
+ roles and configure {@code Group} objects.
+ 
+ <p>
+ The second permission statement grants the bundle the permission to change
+ any properties as well as get and change any credentials whose names start
+ with {@code com.foo.}.
+ 
+ </p><p>
+ The third permission statement grants the bundle the permission to change any
+ properties and credentials whose names start with {@code user.}. This means
+ that the bundle is allowed to change, but not retrieve any credentials with
+ the given prefix.
+ 
+ </p><p>
+ The following policy entry empowers the Http Service bundle to perform user
+ authentication:
+ 
+ </p><pre>&#8194;&#8194;grant&#8194;codeBase&#8194;&quot;${jars}http.jar&quot;&#8194;{<br/>&#8194;&#8194;&#8194;&#8194;permission&#8194;org.osgi.service.useradmin.UserAdminPermission<br/>&#8194;&#8194;&#8194;&#8194;&#8194;&#8194;&quot;user.password&quot;,&#8194;&quot;getCredential&quot;;<br/>&#8194;&#8194;};</pre>
+ 
+ <p>
+ The permission statement grants the Http Service bundle the permission to
+ validate any password credentials (for authentication purposes), but the
+ bundle is not allowed to change any properties or credentials.</p>
+   </description>
+<ThreadSafe></ThreadSafe><author>@author $Id: 33a82bc2d3cd5194b5968582da62f36cc0dc930f $</author>
+    <method name='UserAdminPermission' fqn='org.osgi.service.useradmin.UserAdminPermission.UserAdminPermission' qn='UserAdminPermission.UserAdminPermission(String,String)' package='org.osgi.service.useradmin' typeArgs='' modifiers='public' signature='(java.lang.String,java.lang.String)' flatSignature='(String,String)' isConstructor='true'>
+   <lead>
+Creates a new {@code UserAdminPermission} with the specified name and
+ actions.
+   </lead>
+   <description>
+Creates a new {@code UserAdminPermission} with the specified name and
+ actions. {@code name} is either the reserved string &quot;admin&quot; or
+ the name of a credential or property, and {@code actions} contains a
+ comma-separated list of the actions granted on the specified name. Valid
+ actions are {@code changeProperty},{@code changeCredential}, and
+ getCredential.
+   </description>
+
+<param name='name'>the name of this {@code UserAdminPermission}</param>
+<param name='actions'>the action string.</param>
+
+
+<throws name='IllegalArgumentException'>If {@code name} equals &quot;admin&quot;
+         and {@code actions} are specified.</throws>
+
+
+    <parameter name='name' dimension='' typeName='String' fqn='java.lang.String' varargs='false'/>
+    <parameter name='actions' dimension='' typeName='String' fqn='java.lang.String' varargs='false'/>
+     </method>
+    <method name='implies' fqn='org.osgi.service.useradmin.UserAdminPermission.implies' qn='UserAdminPermission.implies(Permission)' package='org.osgi.service.useradmin' modifiers='public' typeName='boolean' qualifiedTypeName='boolean' typeArgs='' dimension='' signature='(java.security.Permission)' flatSignature='(Permission)'>
+<java.lang.Override></java.lang.Override>
+   <lead>
+Checks if this {@code UserAdminPermission} object &quot;implies&quot; the
+ specified permission.
+   </lead>
+   <description>
+Checks if this {@code UserAdminPermission} object &quot;implies&quot; the
+ specified permission.
+ <p>
+ More specifically, this method returns {@code true} if:
+ </p><p>
+ </p><ul>
+ <li><i>p</i> is an instanceof {@code UserAdminPermission},</li>
+ <li><i>p</i>'s actions are a proper subset of this object's actions, and</li>
+ <li><i>p</i>'s name is implied by this object's name. For example,
+ &quot;java.*&quot; implies &quot;java.home&quot;.</li>
+ </ul>
+   </description>
+
+<param name='p'>the permission to check against.</param>
+
+<return>{@code true} if the specified permission is implied by this
+         object; {@code false} otherwise.</return>
+
+
+
+    <parameter name='p' dimension='' typeName='Permission' fqn='java.security.Permission' varargs='false'/>
+     </method>
+    <method name='getActions' fqn='org.osgi.service.useradmin.UserAdminPermission.getActions' qn='UserAdminPermission.getActions()' package='org.osgi.service.useradmin' modifiers='public' typeName='String' qualifiedTypeName='java.lang.String' typeArgs='' dimension='' signature='()' flatSignature='()'>
+<java.lang.Override></java.lang.Override>
+   <lead>
+Returns the canonical string representation of the actions, separated by
+ comma.
+   </lead>
+   <description>
+Returns the canonical string representation of the actions, separated by
+ comma.
+   </description>
+
+
+<return>the canonical string representation of the actions.</return>
+
+
+
+     </method>
+    <method name='newPermissionCollection' fqn='org.osgi.service.useradmin.UserAdminPermission.newPermissionCollection' qn='UserAdminPermission.newPermissionCollection()' package='org.osgi.service.useradmin' modifiers='public' typeName='PermissionCollection' qualifiedTypeName='java.security.PermissionCollection' typeArgs='' dimension='' signature='()' flatSignature='()'>
+<java.lang.Override></java.lang.Override>
+   <lead>
+Returns a new {@code PermissionCollection} object for storing
+ {@code UserAdminPermission} objects.
+   </lead>
+   <description>
+Returns a new {@code PermissionCollection} object for storing
+ {@code UserAdminPermission} objects.
+   </description>
+
+
+<return>a new {@code PermissionCollection} object suitable for storing
+         {@code UserAdminPermission} objects.</return>
+
+
+
+     </method>
+    <method name='equals' fqn='org.osgi.service.useradmin.UserAdminPermission.equals' qn='UserAdminPermission.equals(Object)' package='org.osgi.service.useradmin' modifiers='public' typeName='boolean' qualifiedTypeName='boolean' typeArgs='' dimension='' signature='(java.lang.Object)' flatSignature='(Object)'>
+<java.lang.Override></java.lang.Override>
+   <lead>
+Checks two {@code UserAdminPermission} objects for equality.
+   </lead>
+   <description>
+Checks two {@code UserAdminPermission} objects for equality. Checks that
+ {@code obj} is a {@code UserAdminPermission}, and has the same name and
+ actions as this object.
+   </description>
+
+<param name='obj'>the object to be compared for equality with this object.</param>
+
+<return>{@code true} if {@code obj} is a {@code UserAdminPermission}
+         object, and has the same name and actions as this
+         {@code UserAdminPermission} object.</return>
+
+
+
+    <parameter name='obj' dimension='' typeName='Object' fqn='java.lang.Object' varargs='false'/>
+     </method>
+    <method name='hashCode' fqn='org.osgi.service.useradmin.UserAdminPermission.hashCode' qn='UserAdminPermission.hashCode()' package='org.osgi.service.useradmin' modifiers='public' typeName='int' qualifiedTypeName='int' typeArgs='' dimension='' signature='()' flatSignature='()'>
+<java.lang.Override></java.lang.Override>
+   <lead>
+Returns the hash code value for this object.
+   </lead>
+   <description>
+Returns the hash code value for this object.
+   </description>
+
+
+<return>A hash code value for this object.</return>
+
+
+
+     </method>
+    <method name='toString' fqn='org.osgi.service.useradmin.UserAdminPermission.toString' qn='UserAdminPermission.toString()' package='org.osgi.service.useradmin' modifiers='public' typeName='String' qualifiedTypeName='java.lang.String' typeArgs='' dimension='' signature='()' flatSignature='()'>
+<java.lang.Override></java.lang.Override>
+   <lead>
+Returns a string describing this {@code UserAdminPermission} object.
+   </lead>
+   <description>
+Returns a string describing this {@code UserAdminPermission} object. This
+ string must be in {@code PermissionInfo} encoded format.
+   </description>
+
+
+<return>The {@code PermissionInfo} encoded string for this
+         {@code UserAdminPermission} object.</return>
+
+
+<a>org.osgi.service.permissionadmin.PermissionInfo.getEncoded()</a>
+     </method>
+    <field name='ADMIN' fqn='org.osgi.service.useradmin.UserAdminPermission.ADMIN' qn='UserAdminPermission.ADMIN' package='org.osgi.service.useradmin' modifiers='public static final' typeName='String' qualifiedTypeName='java.lang.String' dimension='' constantValue='"admin"'>
+   <lead>
+The permission name &quot;admin&quot;.
+   </lead>
+   <description>
+The permission name &quot;admin&quot;.
+   </description>
+
+     </field>
+    <field name='CHANGE_PROPERTY' fqn='org.osgi.service.useradmin.UserAdminPermission.CHANGE_PROPERTY' qn='UserAdminPermission.CHANGE_PROPERTY' package='org.osgi.service.useradmin' modifiers='public static final' typeName='String' qualifiedTypeName='java.lang.String' dimension='' constantValue='"changeProperty"'>
+   <lead>
+The action string &quot;changeProperty&quot;.
+   </lead>
+   <description>
+The action string &quot;changeProperty&quot;.
+   </description>
+
+     </field>
+    <field name='CHANGE_CREDENTIAL' fqn='org.osgi.service.useradmin.UserAdminPermission.CHANGE_CREDENTIAL' qn='UserAdminPermission.CHANGE_CREDENTIAL' package='org.osgi.service.useradmin' modifiers='public static final' typeName='String' qualifiedTypeName='java.lang.String' dimension='' constantValue='"changeCredential"'>
+   <lead>
+The action string &quot;changeCredential&quot;.
+   </lead>
+   <description>
+The action string &quot;changeCredential&quot;.
+   </description>
+
+     </field>
+    <field name='GET_CREDENTIAL' fqn='org.osgi.service.useradmin.UserAdminPermission.GET_CREDENTIAL' qn='UserAdminPermission.GET_CREDENTIAL' package='org.osgi.service.useradmin' modifiers='public static final' typeName='String' qualifiedTypeName='java.lang.String' dimension='' constantValue='"getCredential"'>
+   <lead>
+The action string &quot;getCredential&quot;.
+   </lead>
+   <description>
+The action string &quot;getCredential&quot;.
+   </description>
+
+     </field>
+  </class>
+  </package>
+</top>

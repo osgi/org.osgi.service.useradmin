@@ -1,0 +1,10 @@
+org/osgi/impl/service/useradmin/RoleImpl.class
+org/osgi/impl/service/useradmin/LogTracker.class
+org/osgi/impl/service/useradmin/UserImpl.class
+org/osgi/impl/service/useradmin/EventQueue.class
+org/osgi/impl/service/useradmin/UACredentials.class
+org/osgi/impl/service/useradmin/UAProperties.class
+org/osgi/impl/service/useradmin/UserAdminImpl.class
+org/osgi/impl/service/useradmin/Activator.class
+org/osgi/impl/service/useradmin/AuthorizationImpl.class
+org/osgi/impl/service/useradmin/GroupImpl.class

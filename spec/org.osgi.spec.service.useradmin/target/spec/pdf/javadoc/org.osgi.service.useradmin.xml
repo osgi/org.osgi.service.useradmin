@@ -1,0 +1,1286 @@
+<section xmlns="http://docbook.org/ns/docbook"
+         xreflabel="org.osgi.service.useradmin"
+         version="5"
+         role="package"
+         xml:id="org.osgi.service.useradmin">
+   <title>org.osgi.service.useradmin</title>
+   <info>
+      <releaseinfo xml:id="org.osgi.service.useradmin-version">Version 1.1</releaseinfo>
+      <edition xml:id="org.osgi.service.useradmin-version.number">1.1</edition>
+   </info>
+   <para>
+User Admin Package Version 1.1.
+ 
+ </para>
+   <para>
+ Bundles wishing to use this package must list the package in the
+ Import-Package header of the bundle's manifest. This package has two types of
+ users: the consumers that use the API in this package and the providers that
+ implement the API in this package.
+ 
+ </para>
+   <para>
+ Example import for consumers using the API in this package:
+ </para>
+   <para>
+ {@code  Import-Package: org.osgi.service.useradmin; version="[1.1,2.0)"}
+ </para>
+   <para>
+ Example import for providers implementing the API in this package:
+ </para>
+   <para>
+ {@code  Import-Package: org.osgi.service.useradmin; version="[1.1,1.2)"}</para>
+   <section role="summary">
+      <title>Summary</title>
+      <itemizedlist>
+         <listitem>
+            <para>
+               <link linkend="org.osgi.service.useradmin.Authorization">
+                  <code>Authorization</code>
+               </link> - 
+The {@code Authorization} interface encapsulates an authorization context on
+ which bundles can base authorization decisions, where appropriate.
+   </para>
+         </listitem>
+         <listitem>
+            <para>
+               <link linkend="org.osgi.service.useradmin.Group">
+                  <code>Group</code>
+               </link> - 
+A named grouping of roles ({@code Role} objects).
+   </para>
+         </listitem>
+         <listitem>
+            <para>
+               <link linkend="org.osgi.service.useradmin.Role">
+                  <code>Role</code>
+               </link> - 
+The base interface for {@code Role} objects managed by the User Admin
+ service.
+   </para>
+         </listitem>
+         <listitem>
+            <para>
+               <link linkend="org.osgi.service.useradmin.User">
+                  <code>User</code>
+               </link> - 
+A {@code User} role managed by a User Admin service.
+   </para>
+         </listitem>
+         <listitem>
+            <para>
+               <link linkend="org.osgi.service.useradmin.UserAdmin">
+                  <code>UserAdmin</code>
+               </link> - 
+This interface is used to manage a database of named {@code Role} objects,
+ which can be used for authentication and authorization purposes.
+   </para>
+         </listitem>
+         <listitem>
+            <para>
+               <link linkend="org.osgi.service.useradmin.UserAdminEvent">
+                  <code>UserAdminEvent</code>
+               </link> - 
+{@code Role} change event.
+   </para>
+         </listitem>
+         <listitem>
+            <para>
+               <link linkend="org.osgi.service.useradmin.UserAdminListener">
+                  <code>UserAdminListener</code>
+               </link> - 
+Listener for UserAdminEvents.
+   </para>
+         </listitem>
+         <listitem>
+            <para>
+               <link linkend="org.osgi.service.useradmin.UserAdminPermission">
+                  <code>UserAdminPermission</code>
+               </link> - 
+Permission to configure and access the {@link Role} objects managed by a User
+ Admin service.
+   </para>
+         </listitem>
+      </itemizedlist>
+   </section>
+   <section xreflabel="Authorization"
+            role="class"
+            xml:id="org.osgi.service.useradmin.Authorization">
+      <title>public abstract Authorization</title>
+      <para>
+The {@code Authorization} interface encapsulates an authorization context on
+ which bundles can base authorization decisions, where appropriate.
+ </para>
+      <para>
+ Bundles associate the privilege to access restricted resources or operations
+ with roles. Before granting access to a restricted resource or operation, a
+ bundle will check if the {@code Authorization} object passed to it possess
+ the required role, by calling its {@code hasRole} method.
+ </para>
+      <para>
+ Authorization contexts are instantiated by calling the
+ {@link UserAdmin#getAuthorization(User)} method.
+ 
+ </para>
+      <para>
+         <emphasis>Trusting Authorization objects </emphasis>
+      </para>
+      <para>
+ There are no restrictions regarding the creation of {@code Authorization}
+ objects. Hence, a service must only accept {@code Authorization} objects from
+ bundles that has been authorized to use the service using code based (or Java
+ 2) permissions.
+ 
+ </para>
+      <para>
+ In some cases it is useful to use {@code ServicePermission} to do the code
+ based access control. A service basing user access control on
+ {@code Authorization} objects passed to it, will then require that a calling
+ bundle has the {@code ServicePermission} to get the service in question. This
+ is the most convenient way. The OSGi environment will do the code based
+ permission check when the calling bundle attempts to get the service from the
+ service registry.
+ </para>
+      <para>
+ Example: A servlet using a service on a user's behalf. The bundle with the
+ servlet must be given the {@code ServicePermission} to get the Http Service.
+ </para>
+      <para>
+ However, in some cases the code based permission checks need to be more
+ fine-grained. A service might allow all bundles to get it, but require
+ certain code based permissions for some of its methods.
+ </para>
+      <para>
+ Example: A servlet using a service on a user's behalf, where some service
+ functionality is open to anyone, and some is restricted by code based
+ permissions. When a restricted method is called (e.g., one handing over an
+ {@code Authorization} object), the service explicitly checks that the calling
+ bundle has permission to make the call.</para>
+      <formalpara role="parameter">
+         <title>No Implement</title>
+         <para>Consumers of this API must not implement this interface</para>
+      </formalpara>
+      <section xreflabel="getName()"
+               role="method"
+               xml:id="org.osgi.service.useradmin.Authorization.getName--">
+         <title>public abstract String getName()</title>
+         <para role="description">
+Gets the name of the {@link User} that this {@code Authorization} context
+ was created for.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>The name of the {@link User} object that this
+         {@code Authorization} context was created for, or {@code null} if
+         no user was specified when this {@code Authorization} context was
+         created.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="getRoles()"
+               role="method"
+               xml:id="org.osgi.service.useradmin.Authorization.getRoles--">
+         <title>public abstract String[][] getRoles()</title>
+         <para role="description">
+Gets the names of all roles implied by this {@code Authorization}
+ context.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>The names of all roles implied by this {@code Authorization}
+         context, or {@code null} if no roles are in the context. The
+         predefined role {@code user.anyone} will not be included in this
+         list.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="hasRole(String)"
+               role="method"
+               xml:id="org.osgi.service.useradmin.Authorization.hasRole-String-">
+         <title>public abstract boolean hasRole(String name)</title>
+         <formalpara role="parameter">
+            <title>name</title>
+            <para>The name of the role to check for.</para>
+         </formalpara>
+         <para role="description">
+Checks if the role with the specified name is implied by this
+ {@code Authorization} context.
+ </para>
+         <para>
+ 
+ Bundles must define globally unique role names that are associated with
+ the privilege of accessing restricted resources or operations. Operators
+ will grant users access to these resources, by creating a {@link Group}
+ object for each role and adding {@link User} objects to it.</para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>{@code true} if this {@code Authorization} context implies the
+         specified role, otherwise {@code false}.</para>
+         </formalpara>
+      </section>
+   </section>
+   <section xreflabel="Group"
+            role="class"
+            xml:id="org.osgi.service.useradmin.Group">
+      <title>public abstract Group<?line-break?> extends User</title>
+      <para>
+A named grouping of roles ({@code Role} objects).
+ </para>
+      <para>
+ Whether or not a given {@code Authorization} context implies a {@code Group}
+ object depends on the members of that {@code Group} object.
+ </para>
+      <para>
+ A {@code Group} object can have two kinds of members: <emphasis>basic </emphasis> and
+ <emphasis>required </emphasis>. A {@code Group} object is implied by an
+ {@code Authorization} context if all of its required members are implied and
+ at least one of its basic members is implied.
+ </para>
+      <para>
+ A {@code Group} object must contain at least one basic member in order to be
+ implied. In other words, a {@code Group} object without any basic member
+ roles is never implied by any {@code Authorization} context.
+ </para>
+      <para>
+ A {@code User} object always implies itself.
+ </para>
+      <para>
+ No loop detection is performed when adding members to {@code Group} objects,
+ which means that it is possible to create circular implications. Loop
+ detection is instead done when roles are checked. The semantics is that if a
+ role depends on itself (i.e., there is an implication loop), the role is not
+ implied.
+ </para>
+      <para>
+ The rule that a {@code Group} object must have at least one basic member to
+ be implied is motivated by the following example:
+ 
+ </para>
+      <programlisting> 
+  group foo
+    required members: marketing
+    basic members: alice, bob</programlisting>
+      <para>
+ 
+ Privileged operations that require membership in "foo" can be performed only
+ by "alice" and "bob", who are in marketing.
+ </para>
+      <para>
+ If "alice" and "bob" ever transfer to a different department, anybody in
+ marketing will be able to assume the "foo" role, which certainly must be
+ prevented. Requiring that "foo" (or any {@code Group} object for that matter)
+ must have at least one basic member accomplishes that.
+ </para>
+      <para>
+ However, this would make it impossible for a {@code Group} object to be
+ implied by just its required members. An example where this implication might
+ be useful is the following declaration: "Any citizen who is an adult is
+ allowed to vote." An intuitive configuration of "voter" would be:
+ 
+ </para>
+      <programlisting> 
+  group voter
+    required members: citizen, adult
+       basic members:</programlisting>
+      <para>
+ 
+ However, according to the above rule, the "voter" role could never be assumed
+ by anybody, since it lacks any basic members. In order to address this issue
+ a predefined role named "user.anyone" can be specified, which is always
+ implied. The desired implication of the "voter" group can then be achieved by
+ specifying "user.anyone" as its basic member, as follows:
+ 
+ </para>
+      <programlisting> 
+  group voter
+    required members: citizen, adult
+       basic members: user.anyone</programlisting>
+      <formalpara role="parameter">
+         <title>No Implement</title>
+         <para>Consumers of this API must not implement this interface</para>
+      </formalpara>
+      <section xreflabel="addMember(Role)"
+               role="method"
+               xml:id="org.osgi.service.useradmin.Group.addMember-Role-">
+         <title>public abstract boolean addMember(Role role)</title>
+         <formalpara role="parameter">
+            <title>role</title>
+            <para>The role to add as a basic member.</para>
+         </formalpara>
+         <para role="description">
+Adds the specified {@code Role} object as a basic member to this
+ {@code Group} object.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>{@code true} if the given role could be added as a basic member,
+         and {@code false} if this {@code Group} object already contains a
+         {@code Role} object whose name matches that of the specified
+         role.</para>
+         </formalpara>
+         <formalpara role="parameter">
+            <title>Throws</title>
+            <para>
+               <code>SecurityException</code>– If a security manager exists and the caller
+         does not have the {@code UserAdminPermission} with name
+         {@code admin}.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="addRequiredMember(Role)"
+               role="method"
+               xml:id="org.osgi.service.useradmin.Group.addRequiredMember-Role-">
+         <title>public abstract boolean addRequiredMember(Role role)</title>
+         <formalpara role="parameter">
+            <title>role</title>
+            <para>The {@code Role} object to add as a required member.</para>
+         </formalpara>
+         <para role="description">
+Adds the specified {@code Role} object as a required member to this
+ {@code Group} object.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>{@code true} if the given {@code Role} object could be added as a
+         required member, and {@code false} if this {@code Group} object
+         already contains a {@code Role} object whose name matches that of
+         the specified role.</para>
+         </formalpara>
+         <formalpara role="parameter">
+            <title>Throws</title>
+            <para>
+               <code>SecurityException</code>– If a security manager exists and the caller
+         does not have the {@code UserAdminPermission} with name
+         {@code admin}.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="getMembers()"
+               role="method"
+               xml:id="org.osgi.service.useradmin.Group.getMembers--">
+         <title>public abstract Role[][] getMembers()</title>
+         <para role="description">
+Gets the basic members of this {@code Group} object.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>The basic members of this {@code Group} object, or {@code null}
+         if this {@code Group} object does not contain any basic members.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="getRequiredMembers()"
+               role="method"
+               xml:id="org.osgi.service.useradmin.Group.getRequiredMembers--">
+         <title>public abstract Role[][] getRequiredMembers()</title>
+         <para role="description">
+Gets the required members of this {@code Group} object.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>The required members of this {@code Group} object, or
+         {@code null} if this {@code Group} object does not contain any
+         required members.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="removeMember(Role)"
+               role="method"
+               xml:id="org.osgi.service.useradmin.Group.removeMember-Role-">
+         <title>public abstract boolean removeMember(Role role)</title>
+         <formalpara role="parameter">
+            <title>role</title>
+            <para>The {@code Role} object to remove from this {@code Group}
+        object.</para>
+         </formalpara>
+         <para role="description">
+Removes the specified {@code Role} object from this {@code Group} object.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>{@code true} if the {@code Role} object could be removed,
+         otherwise {@code false}.</para>
+         </formalpara>
+         <formalpara role="parameter">
+            <title>Throws</title>
+            <para>
+               <code>SecurityException</code>– If a security manager exists and the caller
+         does not have the {@code UserAdminPermission} with name
+         {@code admin}.</para>
+         </formalpara>
+      </section>
+   </section>
+   <section xreflabel="Role"
+            role="class"
+            xml:id="org.osgi.service.useradmin.Role">
+      <title>public abstract Role</title>
+      <para>
+The base interface for {@code Role} objects managed by the User Admin
+ service.
+ 
+ </para>
+      <para>
+ This interface exposes the characteristics shared by all {@code Role}
+ classes: a name, a type, and a set of properties.
+ </para>
+      <para>
+ Properties represent public information about the {@code Role} object that
+ can be read by anyone. Specific {@link UserAdminPermission} objects are
+ required to change a {@code Role} object's properties.
+ </para>
+      <para>
+ {@code Role} object properties are {@code Dictionary} objects. Changes to
+ these objects are propagated to the User Admin service and made persistent.
+ </para>
+      <para>
+ Every User Admin service contains a set of predefined {@code Role} objects
+ that are always present and cannot be removed. All predefined {@code Role}
+ objects are of type {@code ROLE}. This version of the
+ {@code org.osgi.service.useradmin} package defines a single predefined role
+ named "user.anyone", which is inherited by any other role. Other
+ predefined roles may be added in the future. Since "user.anyone" is
+ a {@code Role} object that has properties associated with it that can be read
+ and modified. Access to these properties and their use is application
+ specific and is controlled using {@code UserAdminPermission} in the same way
+ that properties for other {@code Role} objects are.</para>
+      <formalpara role="parameter">
+         <title>No Implement</title>
+         <para>Consumers of this API must not implement this interface</para>
+      </formalpara>
+      <section xreflabel="GROUP"
+               role="field"
+               xml:id="org.osgi.service.useradmin.Role.GROUP">
+         <title>public static final int GROUP = 2</title>
+         <para>
+The type of a {@link Group} role.
+ 
+ </para>
+         <para>
+ The value of {@code GROUP} is 2.</para>
+      </section>
+      <section xreflabel="ROLE"
+               role="field"
+               xml:id="org.osgi.service.useradmin.Role.ROLE">
+         <title>public static final int ROLE = 0</title>
+         <para>
+The type of a predefined role.
+ 
+ </para>
+         <para>
+ The value of {@code ROLE} is 0.</para>
+      </section>
+      <section xreflabel="USER"
+               role="field"
+               xml:id="org.osgi.service.useradmin.Role.USER">
+         <title>public static final int USER = 1</title>
+         <para>
+The type of a {@link User} role.
+ 
+ </para>
+         <para>
+ The value of {@code USER} is 1.</para>
+      </section>
+      <section xreflabel="USER_ANYONE"
+               role="field"
+               xml:id="org.osgi.service.useradmin.Role.USER_ANYONE">
+         <title>public static final String USER_ANYONE = "user.anyone"</title>
+         <para>
+The name of the predefined role, user.anyone, that all users and groups
+ belong to.
+   </para>
+         <formalpara role="parameter">
+            <title>Since</title>
+            <para>@since 1.1</para>
+         </formalpara>
+      </section>
+      <section xreflabel="getName()"
+               role="method"
+               xml:id="org.osgi.service.useradmin.Role.getName--">
+         <title>public abstract String getName()</title>
+         <para role="description">
+Returns the name of this role.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>The role's name.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="getProperties()"
+               role="method"
+               xml:id="org.osgi.service.useradmin.Role.getProperties--">
+         <title>public abstract Dictionary&lt;String, Object&gt; getProperties()</title>
+         <para role="description">
+Returns a {@code Dictionary} of the (public) properties of this
+ {@code Role} object. Any changes to the returned {@code Dictionary} will
+ change the properties of this {@code Role} object. This will cause a
+ {@code UserAdminEvent} object of type {@link UserAdminEvent#ROLE_CHANGED}
+ to be broadcast to any {@code UserAdminListener} objects.
+ 
+ </para>
+         <para>
+ Only objects of type {@code String} may be used as property keys, and
+ only objects of type {@code String} or {@code byte[]} may be used as
+ property values. Any other types will cause an exception of type
+ {@code IllegalArgumentException} to be raised.
+ 
+ </para>
+         <para>
+ In order to add, change, or remove a property in the returned
+ {@code Dictionary}, a {@link UserAdminPermission} named after the
+ property name (or a prefix of it) with action {@code changeProperty} is
+ required.</para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>{@code Dictionary} containing the properties of this {@code Role}
+         object.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="getType()"
+               role="method"
+               xml:id="org.osgi.service.useradmin.Role.getType--">
+         <title>public abstract int getType()</title>
+         <para role="description">
+Returns the type of this role.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>The role's type.</para>
+         </formalpara>
+      </section>
+   </section>
+   <section xreflabel="User"
+            role="class"
+            xml:id="org.osgi.service.useradmin.User">
+      <title>public abstract User<?line-break?> extends Role</title>
+      <para>
+A {@code User} role managed by a User Admin service.
+ 
+ </para>
+      <para>
+ In this context, the term "user" is not limited to just human
+ beings. Instead, it refers to any entity that may have any number of
+ credentials associated with it that it may use to authenticate itself.
+ </para>
+      <para>
+ In general, {@code User} objects are associated with a specific User Admin
+ service (namely the one that created them), and cannot be used with other
+ User Admin services.
+ </para>
+      <para>
+ A {@code User} object may have credentials (and properties, inherited from
+ the {@link Role} class) associated with it. Specific
+ {@link UserAdminPermission} objects are required to read or change a
+ {@code User} object's credentials.
+ </para>
+      <para>
+ Credentials are {@code Dictionary} objects and have semantics that are
+ similar to the properties in the {@code Role} class.</para>
+      <formalpara role="parameter">
+         <title>No Implement</title>
+         <para>Consumers of this API must not implement this interface</para>
+      </formalpara>
+      <section xreflabel="getCredentials()"
+               role="method"
+               xml:id="org.osgi.service.useradmin.User.getCredentials--">
+         <title>public abstract Dictionary&lt;String, Object&gt; getCredentials()</title>
+         <para role="description">
+Returns a {@code Dictionary} of the credentials of this {@code User}
+ object. Any changes to the returned {@code Dictionary} object will change
+ the credentials of this {@code User} object. This will cause a
+ {@code UserAdminEvent} object of type {@link UserAdminEvent#ROLE_CHANGED}
+ to be broadcast to any {@code UserAdminListeners} objects.
+ 
+ </para>
+         <para>
+ Only objects of type {@code String} may be used as credential keys, and
+ only objects of type {@code String} or of type {@code byte[]} may be used
+ as credential values. Any other types will cause an exception of type
+ {@code IllegalArgumentException} to be raised.
+ 
+ </para>
+         <para>
+ In order to retrieve a credential from the returned {@code Dictionary}
+ object, a {@link UserAdminPermission} named after the credential name (or
+ a prefix of it) with action {@code getCredential} is required.
+ </para>
+         <para>
+ In order to add or remove a credential from the returned
+ {@code Dictionary} object, a {@link UserAdminPermission} named after the
+ credential name (or a prefix of it) with action {@code changeCredential}
+ is required.</para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>{@code Dictionary} object containing the credentials of this
+         {@code User} object.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="hasCredential(String,Object)"
+               role="method"
+               xml:id="org.osgi.service.useradmin.User.hasCredential-String-Object-">
+         <title>public abstract boolean hasCredential(String key, Object value)</title>
+         <formalpara role="parameter">
+            <title>key</title>
+            <para>The credential {@code key}.</para>
+         </formalpara>
+         <formalpara role="parameter">
+            <title>value</title>
+            <para>The credential {@code value}.</para>
+         </formalpara>
+         <para role="description">
+Checks to see if this {@code User} object has a credential with the
+ specified {@code key} set to the specified {@code value}.
+ 
+ </para>
+         <para>
+ If the specified credential {@code value} is not of type {@code String}
+ or {@code byte[]}, it is ignored, that is, {@code false} is returned (as
+ opposed to an {@code IllegalArgumentException} being raised).</para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>{@code true} if this user has the specified credential;
+         {@code false} otherwise.</para>
+         </formalpara>
+         <formalpara role="parameter">
+            <title>Throws</title>
+            <para>
+               <code>SecurityException</code>– If a security manager exists and the caller
+         does not have the {@code UserAdminPermission} named after the
+         credential key (or a prefix of it) with action
+         {@code getCredential}.</para>
+         </formalpara>
+      </section>
+   </section>
+   <section xreflabel="UserAdmin"
+            role="class"
+            xml:id="org.osgi.service.useradmin.UserAdmin">
+      <title>public abstract UserAdmin</title>
+      <para>
+This interface is used to manage a database of named {@code Role} objects,
+ which can be used for authentication and authorization purposes.
+ 
+ </para>
+      <para>
+ This version of the User Admin service defines two types of {@code Role}
+ objects: "User" and "Group". Each type of role is represented by an
+ {@code int} constant and an interface. The range of positive integers is
+ reserved for new types of roles that may be added in the future. When
+ defining proprietary role types, negative constant values must be used.
+ 
+ </para>
+      <para>
+ Every role has a name and a type.
+ 
+ </para>
+      <para>
+ A {@link User} object can be configured with credentials (e.g., a password)
+ and properties (e.g., a street address, phone number, etc.).
+ </para>
+      <para>
+ A {@link Group} object represents an aggregation of {@link User} and
+ {@link Group} objects. In other words, the members of a {@code Group} object
+ are roles themselves.
+ </para>
+      <para>
+ Every User Admin service manages and maintains its own namespace of
+ {@code Role} objects, in which each {@code Role} object has a unique name.</para>
+      <formalpara role="parameter">
+         <title>No Implement</title>
+         <para>Consumers of this API must not implement this interface</para>
+      </formalpara>
+      <section xreflabel="createRole(String,int)"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdmin.createRole-String-int-">
+         <title>public abstract Role createRole(String name, int type)</title>
+         <formalpara role="parameter">
+            <title>name</title>
+            <para>The {@code name} of the {@code Role} object to create.</para>
+         </formalpara>
+         <formalpara role="parameter">
+            <title>type</title>
+            <para>The type of the {@code Role} object to create. Must be either
+        a {@link Role#USER} type or {@link Role#GROUP} type.</para>
+         </formalpara>
+         <para role="description">
+Creates a {@code Role} object with the given name and of the given type.
+ 
+ </para>
+         <para>
+ If a {@code Role} object was created, a {@code UserAdminEvent} object of
+ type {@link UserAdminEvent#ROLE_CREATED} is broadcast to any
+ {@code UserAdminListener} object.</para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>The newly created {@code Role} object, or {@code null} if a role
+         with the given name already exists.</para>
+         </formalpara>
+         <formalpara role="parameter">
+            <title>Throws</title>
+            <para>
+               <code>IllegalArgumentException</code>– if {@code type} is invalid.</para>
+         </formalpara>
+         <formalpara role="parameter">
+            <title>Throws</title>
+            <para>
+               <code>SecurityException</code>– If a security manager exists and the caller
+         does not have the {@code UserAdminPermission} with name
+         {@code admin}.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="getAuthorization(User)"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdmin.getAuthorization-User-">
+         <title>public abstract Authorization getAuthorization(User user)</title>
+         <formalpara role="parameter">
+            <title>user</title>
+            <para>The {@code User} object to create an {@code Authorization}
+        object for, or {@code null} for the anonymous user.</para>
+         </formalpara>
+         <para role="description">
+Creates an {@code Authorization} object that encapsulates the specified
+ {@code User} object and the {@code Role} objects it possesses. The
+ {@code null} user is interpreted as the anonymous user. The anonymous
+ user represents a user that has not been authenticated. An
+ {@code Authorization} object for an anonymous user will be unnamed, and
+ will only imply groups that user.anyone implies.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>the {@code Authorization} object for the specified {@code User}
+         object.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="getRole(String)"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdmin.getRole-String-">
+         <title>public abstract Role getRole(String name)</title>
+         <formalpara role="parameter">
+            <title>name</title>
+            <para>The name of the {@code Role} object to get.</para>
+         </formalpara>
+         <para role="description">
+Gets the {@code Role} object with the given {@code name} from this User
+ Admin service.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>The requested {@code Role} object, or {@code null} if this User
+         Admin service does not have a {@code Role} object with the given
+         {@code name}.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="getRoles(String)"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdmin.getRoles-String-">
+         <title>public abstract Role[][] getRoles(String filter) throws InvalidSyntaxException</title>
+         <formalpara role="parameter">
+            <title>filter</title>
+            <para>The filter criteria to match.</para>
+         </formalpara>
+         <para role="description">
+Gets the {@code Role} objects managed by this User Admin service that
+ have properties matching the specified LDAP filter criteria. See
+ {@code org.osgi.framework.Filter} for a description of the filter syntax.
+ If a {@code null} filter is specified, all Role objects managed by this
+ User Admin service are returned.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>The {@code Role} objects managed by this User Admin service whose
+         properties match the specified filter criteria, or all
+         {@code Role} objects if a {@code null} filter is specified. If no
+         roles match the filter, {@code null} will be returned.</para>
+         </formalpara>
+         <formalpara role="parameter">
+            <title>Throws</title>
+            <para>
+               <code>InvalidSyntaxException</code>– If the filter is not well formed.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="getUser(String,String)"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdmin.getUser-String-String-">
+         <title>public abstract User getUser(String key, String value)</title>
+         <formalpara role="parameter">
+            <title>key</title>
+            <para>The property key to look for.</para>
+         </formalpara>
+         <formalpara role="parameter">
+            <title>value</title>
+            <para>The property value to compare with.</para>
+         </formalpara>
+         <para role="description">
+Gets the user with the given property {@code key}-{@code value} pair from
+ the User Admin service database. This is a convenience method for
+ retrieving a {@code User} object based on a property for which every
+ {@code User} object is supposed to have a unique value (within the scope
+ of this User Admin service), such as for example a X.500 distinguished
+ name.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>A matching user, if <emphasis>exactly</emphasis> one is found. If zero or
+         more than one matching users are found, {@code null} is returned.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="removeRole(String)"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdmin.removeRole-String-">
+         <title>public abstract boolean removeRole(String name)</title>
+         <formalpara role="parameter">
+            <title>name</title>
+            <para>The name of the {@code Role} object to remove.</para>
+         </formalpara>
+         <para role="description">
+Removes the {@code Role} object with the given name from this User Admin
+ service and all groups it is a member of.
+ 
+ </para>
+         <para>
+ If the {@code Role} object was removed, a {@code UserAdminEvent} object
+ of type {@link UserAdminEvent#ROLE_REMOVED} is broadcast to any
+ {@code UserAdminListener} object.</para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>{@code true} If a {@code Role} object with the given name is
+         present in this User Admin service and could be removed,
+         otherwise {@code false}.</para>
+         </formalpara>
+         <formalpara role="parameter">
+            <title>Throws</title>
+            <para>
+               <code>SecurityException</code>– If a security manager exists and the caller
+         does not have the {@code UserAdminPermission} with name
+         {@code admin}.</para>
+         </formalpara>
+      </section>
+   </section>
+   <section xreflabel="UserAdminEvent"
+            role="class"
+            xml:id="org.osgi.service.useradmin.UserAdminEvent">
+      <title>public class UserAdminEvent</title>
+      <para>
+{@code Role} change event.
+ </para>
+      <para>
+ {@code UserAdminEvent} objects are delivered asynchronously to any
+ {@code UserAdminListener} objects when a change occurs in any of the
+ {@code Role} objects managed by a User Admin service.
+ 
+ </para>
+      <para>
+ A type code is used to identify the event. The following event types are
+ defined: {@link #ROLE_CREATED} type, {@link #ROLE_CHANGED} type, and
+ {@link #ROLE_REMOVED} type. Additional event types may be defined in the
+ future.</para>
+      <formalpara role="parameter">
+         <title>See Also</title>
+         <para>
+            <link linkend="org.osgi.service.useradmin.UserAdmin">UserAdmin</link>, <link linkend="org.osgi.service.useradmin.UserAdminListener">UserAdminListener</link>
+         </para>
+      </formalpara>
+      <section xreflabel="ROLE_CHANGED"
+               role="field"
+               xml:id="org.osgi.service.useradmin.UserAdminEvent.ROLE_CHANGED">
+         <title>public static final int ROLE_CHANGED = 2</title>
+         <para>
+A {@code Role} object has been modified.
+ 
+ </para>
+         <para>
+ The value of {@code ROLE_CHANGED} is 0x00000002.</para>
+      </section>
+      <section xreflabel="ROLE_CREATED"
+               role="field"
+               xml:id="org.osgi.service.useradmin.UserAdminEvent.ROLE_CREATED">
+         <title>public static final int ROLE_CREATED = 1</title>
+         <para>
+A {@code Role} object has been created.
+ 
+ </para>
+         <para>
+ The value of {@code ROLE_CREATED} is 0x00000001.</para>
+      </section>
+      <section xreflabel="ROLE_REMOVED"
+               role="field"
+               xml:id="org.osgi.service.useradmin.UserAdminEvent.ROLE_REMOVED">
+         <title>public static final int ROLE_REMOVED = 4</title>
+         <para>
+A {@code Role} object has been removed.
+ 
+ </para>
+         <para>
+ The value of {@code ROLE_REMOVED} is 0x00000004.</para>
+      </section>
+      <section xreflabel="UserAdminEvent(ServiceReference,int,Role)"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdminEvent.UserAdminEvent-ServiceReference-int-Role-">
+         <title>public  UserAdminEvent(ServiceReference&lt;UserAdmin&gt; ref, int type, Role role)</title>
+         <formalpara role="parameter">
+            <title>ref</title>
+            <para>The {@code ServiceReference} object of the User Admin service
+        that generated this event.</para>
+         </formalpara>
+         <formalpara role="parameter">
+            <title>type</title>
+            <para>The event type.</para>
+         </formalpara>
+         <formalpara role="parameter">
+            <title>role</title>
+            <para>The {@code Role} object on which this event occurred.</para>
+         </formalpara>
+         <para role="description">
+Constructs a {@code UserAdminEvent} object from the given
+ {@code ServiceReference} object, event type, and {@code Role} object.
+   </para>
+      </section>
+      <section xreflabel="getRole()"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdminEvent.getRole--">
+         <title>public Role getRole()</title>
+         <para role="description">
+Gets the {@code Role} object this event was generated for.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>The {@code Role} object this event was generated for.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="getServiceReference()"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdminEvent.getServiceReference--">
+         <title>public ServiceReference&lt;UserAdmin&gt; getServiceReference()</title>
+         <para role="description">
+Gets the {@code ServiceReference} object of the User Admin service that
+ generated this event.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>The User Admin service's {@code ServiceReference} object.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="getType()"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdminEvent.getType--">
+         <title>public int getType()</title>
+         <para role="description">
+Returns the type of this event.
+ 
+ </para>
+         <para>
+ The type values are {@link #ROLE_CREATED} type, {@link #ROLE_CHANGED}
+ type, and {@link #ROLE_REMOVED} type.</para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>The event type.</para>
+         </formalpara>
+      </section>
+   </section>
+   <section xreflabel="UserAdminListener"
+            role="class"
+            xml:id="org.osgi.service.useradmin.UserAdminListener">
+      <title>public abstract UserAdminListener</title>
+      <para>
+Listener for UserAdminEvents.
+ 
+ </para>
+      <para>
+ {@code UserAdminListener} objects are registered with the Framework service
+ registry and notified with a {@code UserAdminEvent} object when a
+ {@code Role} object has been created, removed, or modified.
+ </para>
+      <para>
+ {@code UserAdminListener} objects can further inspect the received
+ {@code UserAdminEvent} object to determine its type, the {@code Role} object
+ it occurred on, and the User Admin service that generated it.</para>
+      <formalpara role="parameter">
+         <title>See Also</title>
+         <para>
+            <link linkend="org.osgi.service.useradmin.UserAdmin">UserAdmin</link>, <link linkend="org.osgi.service.useradmin.UserAdminEvent">UserAdminEvent</link>
+         </para>
+      </formalpara>
+      <section xreflabel="roleChanged(UserAdminEvent)"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdminListener.roleChanged-UserAdminEvent-">
+         <title>public abstract void roleChanged(UserAdminEvent event)</title>
+         <formalpara role="parameter">
+            <title>event</title>
+            <para>The {@code UserAdminEvent} object.</para>
+         </formalpara>
+         <para role="description">
+Receives notification that a {@code Role} object has been created,
+ removed, or modified.
+   </para>
+      </section>
+   </section>
+   <section xreflabel="UserAdminPermission"
+            role="class"
+            xml:id="org.osgi.service.useradmin.UserAdminPermission">
+      <title>public final class UserAdminPermission<?line-break?> extends BasicPermission</title>
+      <para>
+Permission to configure and access the {@link Role} objects managed by a User
+ Admin service.
+ 
+ </para>
+      <para>
+ This class represents access to the {@code Role} objects managed by a User
+ Admin service and their properties and credentials (in the case of
+ {@link User} objects).
+ </para>
+      <para>
+ The permission name is the name (or name prefix) of a property or credential.
+ The naming convention follows the hierarchical property naming convention.
+ Also, an asterisk may appear at the end of the name, following a
+ ".", or by itself, to signify a wildcard match. For example:
+ "org.osgi.security.protocol.*" or "*" is valid, but
+ "*protocol" or "a*b" are not valid.
+ 
+ </para>
+      <para>
+ The {@code UserAdminPermission} with the reserved name "admin"
+ represents the permission required for creating and removing {@code Role}
+ objects in the User Admin service, as well as adding and removing members in
+ a {@code Group} object. This {@code UserAdminPermission} does not have any
+ actions associated with it.
+ 
+ </para>
+      <para>
+ The actions to be granted are passed to the constructor in a string
+ containing a list of one or more comma-separated keywords. The possible
+ keywords are: {@code changeProperty},{@code changeCredential}, and
+ {@code getCredential}. Their meaning is defined as follows:
+ 
+ </para>
+      <programlisting>  action
+  changeProperty    Permission to change (i.e., add and remove)
+                    Role object properties whose names start with
+                    the name argument specified in the constructor.
+  changeCredential  Permission to change (i.e., add and remove)
+                    User object credentials whose names start
+                    with the name argument specified in the constructor.
+  getCredential     Permission to retrieve and check for the
+                    existence of User object credentials whose names
+                    start with the name argument specified in the
+                    constructor.</programlisting>
+      <para>
+ 
+ The action string is converted to lowercase before processing.
+ 
+ </para>
+      <para>
+ Following is a PermissionInfo style policy entry which grants a user
+ administration bundle a number of {@code UserAdminPermission} object:
+ 
+ </para>
+      <programlisting>  (org.osgi.service.useradmin.UserAdminPermission "admin")
+  (org.osgi.service.useradmin.UserAdminPermission "com.foo.*"
+                "changeProperty,getCredential,changeCredential")
+  (org.osgi.service.useradmin.UserAdminPermission "user.*"
+                              "changeProperty,changeCredential")</programlisting>
+      <para>
+ 
+ The first permission statement grants the bundle the permission to perform
+ any User Admin service operations of type "admin", that is, create and remove
+ roles and configure {@code Group} objects.
+ 
+ </para>
+      <para>
+ The second permission statement grants the bundle the permission to change
+ any properties as well as get and change any credentials whose names start
+ with {@code com.foo.}.
+ 
+ </para>
+      <para>
+ The third permission statement grants the bundle the permission to change any
+ properties and credentials whose names start with {@code user.}. This means
+ that the bundle is allowed to change, but not retrieve any credentials with
+ the given prefix.
+ 
+ </para>
+      <para>
+ The following policy entry empowers the Http Service bundle to perform user
+ authentication:
+ 
+ </para>
+      <programlisting>  grant codeBase "${jars}http.jar" {
+    permission org.osgi.service.useradmin.UserAdminPermission
+      "user.password", "getCredential";
+  };</programlisting>
+      <para>
+ The permission statement grants the Http Service bundle the permission to
+ validate any password credentials (for authentication purposes), but the
+ bundle is not allowed to change any properties or credentials.</para>
+      <formalpara role="parameter">
+         <title>Concurrency</title>
+         <para>Thread-safe </para>
+      </formalpara>
+      <section xreflabel="ADMIN"
+               role="field"
+               xml:id="org.osgi.service.useradmin.UserAdminPermission.ADMIN">
+         <title>public static final String ADMIN = "admin"</title>
+         <para>
+The permission name "admin".
+   </para>
+      </section>
+      <section xreflabel="CHANGE_CREDENTIAL"
+               role="field"
+               xml:id="org.osgi.service.useradmin.UserAdminPermission.CHANGE_CREDENTIAL">
+         <title>public static final String CHANGE_CREDENTIAL = "changeCredential"</title>
+         <para>
+The action string "changeCredential".
+   </para>
+      </section>
+      <section xreflabel="CHANGE_PROPERTY"
+               role="field"
+               xml:id="org.osgi.service.useradmin.UserAdminPermission.CHANGE_PROPERTY">
+         <title>public static final String CHANGE_PROPERTY = "changeProperty"</title>
+         <para>
+The action string "changeProperty".
+   </para>
+      </section>
+      <section xreflabel="GET_CREDENTIAL"
+               role="field"
+               xml:id="org.osgi.service.useradmin.UserAdminPermission.GET_CREDENTIAL">
+         <title>public static final String GET_CREDENTIAL = "getCredential"</title>
+         <para>
+The action string "getCredential".
+   </para>
+      </section>
+      <section xreflabel="UserAdminPermission(String,String)"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdminPermission.UserAdminPermission-String-String-">
+         <title>public  UserAdminPermission(String name, String actions)</title>
+         <formalpara role="parameter">
+            <title>name</title>
+            <para>the name of this {@code UserAdminPermission}</para>
+         </formalpara>
+         <formalpara role="parameter">
+            <title>actions</title>
+            <para>the action string.</para>
+         </formalpara>
+         <para role="description">
+Creates a new {@code UserAdminPermission} with the specified name and
+ actions. {@code name} is either the reserved string "admin" or
+ the name of a credential or property, and {@code actions} contains a
+ comma-separated list of the actions granted on the specified name. Valid
+ actions are {@code changeProperty},{@code changeCredential}, and
+ getCredential.
+   </para>
+         <formalpara role="parameter">
+            <title>Throws</title>
+            <para>
+               <code>IllegalArgumentException</code>– If {@code name} equals "admin"
+         and {@code actions} are specified.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="equals(Object)"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdminPermission.equals-Object-">
+         <title>public boolean equals(Object obj)</title>
+         <formalpara role="parameter">
+            <title>obj</title>
+            <para>the object to be compared for equality with this object.</para>
+         </formalpara>
+         <para role="description">
+Checks two {@code UserAdminPermission} objects for equality. Checks that
+ {@code obj} is a {@code UserAdminPermission}, and has the same name and
+ actions as this object.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>{@code true} if {@code obj} is a {@code UserAdminPermission}
+         object, and has the same name and actions as this
+         {@code UserAdminPermission} object.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="getActions()"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdminPermission.getActions--">
+         <title>public String getActions()</title>
+         <para role="description">
+Returns the canonical string representation of the actions, separated by
+ comma.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>the canonical string representation of the actions.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="hashCode()"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdminPermission.hashCode--">
+         <title>public int hashCode()</title>
+         <para role="description">
+Returns the hash code value for this object.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>A hash code value for this object.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="implies(Permission)"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdminPermission.implies-Permission-">
+         <title>public boolean implies(Permission p)</title>
+         <formalpara role="parameter">
+            <title>p</title>
+            <para>the permission to check against.</para>
+         </formalpara>
+         <para role="description">
+Checks if this {@code UserAdminPermission} object "implies" the
+ specified permission.
+ </para>
+         <para>
+ More specifically, this method returns {@code true} if:
+ </para>
+         <para/>
+         <itemizedlist>
+            <listitem>
+               <para>
+                  <emphasis>p</emphasis> is an instanceof {@code UserAdminPermission},</para>
+            </listitem>
+            <listitem>
+               <para>
+                  <emphasis>p</emphasis>'s actions are a proper subset of this object's actions, and</para>
+            </listitem>
+            <listitem>
+               <para>
+                  <emphasis>p</emphasis>'s name is implied by this object's name. For example,
+ "java.*" implies "java.home".</para>
+            </listitem>
+         </itemizedlist>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>{@code true} if the specified permission is implied by this
+         object; {@code false} otherwise.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="newPermissionCollection()"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdminPermission.newPermissionCollection--">
+         <title>public PermissionCollection newPermissionCollection()</title>
+         <para role="description">
+Returns a new {@code PermissionCollection} object for storing
+ {@code UserAdminPermission} objects.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>a new {@code PermissionCollection} object suitable for storing
+         {@code UserAdminPermission} objects.</para>
+         </formalpara>
+      </section>
+      <section xreflabel="toString()"
+               role="method"
+               xml:id="org.osgi.service.useradmin.UserAdminPermission.toString--">
+         <title>public String toString()</title>
+         <para role="description">
+Returns a string describing this {@code UserAdminPermission} object. This
+ string must be in {@code PermissionInfo} encoded format.
+   </para>
+         <formalpara role="parameter">
+            <title>Returns</title>
+            <para>The {@code PermissionInfo} encoded string for this
+         {@code UserAdminPermission} object.</para>
+         </formalpara>
+         <formalpara role="parameter">
+            <title>See Also</title>
+            <para>
+               <code>org.osgi.service.permissionadmin.PermissionInfo.getEncoded()</code>
+            </para>
+         </formalpara>
+      </section>
+   </section>
+</section>
