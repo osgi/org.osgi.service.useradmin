@@ -1,0 +1,4 @@
+org/osgi/test/cases/useradmin/junit/UserAdminEventCollector$1.class
+org/osgi/test/cases/useradmin/junit/UserAdminControl.class
+org/osgi/test/cases/useradmin/junit/UserAdminEventCollector.class
+org/osgi/test/cases/useradmin/junit/SignatureTestCase.class

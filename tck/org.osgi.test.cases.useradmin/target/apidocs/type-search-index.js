@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"org.osgi.test.cases.useradmin.junit","l":"SignatureTestCase"},{"p":"org.osgi.test.cases.useradmin.junit","l":"UserAdminControl"},{"p":"org.osgi.test.cases.useradmin.junit","l":"UserAdminEventCollector"}];updateSearchResults();

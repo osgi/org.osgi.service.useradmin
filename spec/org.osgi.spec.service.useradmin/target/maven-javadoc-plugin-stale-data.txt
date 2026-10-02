@@ -1,0 +1,72 @@
+@options
+@packages
+-classpath
+'/home/stbischof/.m2/repository/org/osgi/org.osgi.annotation.versioning/1.1.2/org.osgi.annotation.versioning-1.1.2.jar:/home/stbischof/.m2/repository/org/osgi/org.osgi.annotation.bundle/2.0.0/org.osgi.annotation.bundle-2.0.0.jar:/home/stbischof/.m2/repository/org/osgi/org.osgi.framework/1.10.0/org.osgi.framework-1.10.0.jar'
+-encoding
+'UTF-8'
+-protected
+--release
+8
+-sourcepath
+'/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/api/src/main/java:/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/generated-sources/annotations'
+-author
+-bottom
+'Copyright &#169; 1980 <a href="https://www.eclipse.org/">Eclipse Foundation</a>. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs'
+-docencoding
+'UTF-8'
+-Xdoclint:none
+-doctitle
+'OSGi Specification repo for org.osgi.service.useradmin 1.1.2-SNAPSHOT API'
+-linkoffline
+'https://docs.oracle.com/javase/8/docs/api' '/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/javadoc-bundle-options'
+-notimestamp
+-tag
+"Immutable:t:Immutable"
+-tag
+"ThreadSafe:t:ThreadSafe"
+-tag
+"NotThreadSafe:t:NotThreadSafe"
+-tag
+"GuardedBy:mf:Guarded By:"
+-tag
+"security:m:Required Permissions"
+-tag
+"noimplement:t:Consumers of this API must not implement this interface"
+-tag
+"implNote:a:Implementation Note:"
+-use
+-version
+-windowtitle
+'OSGi Specification repo for org.osgi.service.useradmin 1.1.2-SNAPSHOT API'
+org.osgi.service.useradmin
+/home/stbischof/.m2/repository/org/osgi/org.osgi.annotation.versioning/1.1.2/org.osgi.annotation.versioning-1.1.2.jar = 1634136809000
+/home/stbischof/.m2/repository/org/osgi/org.osgi.annotation.bundle/2.0.0/org.osgi.annotation.bundle-2.0.0.jar = 1644360733000
+/home/stbischof/.m2/repository/org/osgi/org.osgi.framework/1.10.0/org.osgi.framework-1.10.0.jar = 1607377478000
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/api/src/main/java = 1790012149439
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/generated-sources/annotations = 1790091811113
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/element-list = 1790093923621
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/constant-values.html = 1790093923715
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/serialized-form.html = 1790093923767
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/overview-tree.html = 1790093923927
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/allclasses-index.html = 1790093923965
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/allpackages-index.html = 1790093923980
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/module-search-index.js = 1790093923982
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/package-search-index.js = 1790093923983
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/type-search-index.js = 1790093923984
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/member-search-index.js = 1790093923986
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/tag-search-index.js = 1790093923987
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/index-all.html = 1790093924064
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/search.html = 1790093924071
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/index.html = 1790093924074
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/help-doc.html = 1790093924112
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/stylesheet.css = 1790093924121
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/script.js = 1790093924124
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/copy.svg = 1790093924126
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/link.svg = 1790093924127
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/search.js = 1790093924136
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/search-page.js = 1790093924140
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/spec/org.osgi.spec.service.useradmin/target/apidocs/javadoc.sh = 1790091849589

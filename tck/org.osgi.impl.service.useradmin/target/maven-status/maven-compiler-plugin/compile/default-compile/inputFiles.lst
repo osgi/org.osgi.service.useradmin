@@ -1,0 +1,10 @@
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/tck/org.osgi.impl.service.useradmin/src/main/java/org/osgi/impl/service/useradmin/Activator.java
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/tck/org.osgi.impl.service.useradmin/src/main/java/org/osgi/impl/service/useradmin/AuthorizationImpl.java
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/tck/org.osgi.impl.service.useradmin/src/main/java/org/osgi/impl/service/useradmin/EventQueue.java
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/tck/org.osgi.impl.service.useradmin/src/main/java/org/osgi/impl/service/useradmin/GroupImpl.java
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/tck/org.osgi.impl.service.useradmin/src/main/java/org/osgi/impl/service/useradmin/LogTracker.java
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/tck/org.osgi.impl.service.useradmin/src/main/java/org/osgi/impl/service/useradmin/RoleImpl.java
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/tck/org.osgi.impl.service.useradmin/src/main/java/org/osgi/impl/service/useradmin/UACredentials.java
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/tck/org.osgi.impl.service.useradmin/src/main/java/org/osgi/impl/service/useradmin/UAProperties.java
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/tck/org.osgi.impl.service.useradmin/src/main/java/org/osgi/impl/service/useradmin/UserAdminImpl.java
+/home/stbischof/git/OSGI_MIGRATE/osgi_target/org.osgi.service.useradmin/tck/org.osgi.impl.service.useradmin/src/main/java/org/osgi/impl/service/useradmin/UserImpl.java
