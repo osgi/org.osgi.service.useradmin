@@ -12,7 +12,7 @@
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>org.osgi.spec.service.useradmin</artifactId>
-	<name>OSGi Specification repo for org.osgi.service.useradmin</name>
+	<name>User Admin Service Specification</name>
 
 	<dependencies>
 		<dependency>
