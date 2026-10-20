@@ -26,7 +26,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.UserAdminEvent;
 import org.osgi.service.useradmin.UserAdminListener;
-import org.osgi.test.support.EventCollector;
 
 public class UserAdminEventCollector extends EventCollector<UserAdminEvent>
 		implements

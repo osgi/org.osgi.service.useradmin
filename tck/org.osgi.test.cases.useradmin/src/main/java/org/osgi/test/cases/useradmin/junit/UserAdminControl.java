@@ -20,6 +20,9 @@
  */
 package org.osgi.test.cases.useradmin.junit;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,6 +30,10 @@ import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
@@ -35,19 +42,27 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
 import org.osgi.service.useradmin.UserAdminListener;
-import org.osgi.test.support.OSGiTestCaseProperties;
-import org.osgi.test.support.compatibility.DefaultTestBundleControl;
 
-public class UserAdminControl extends DefaultTestBundleControl {
+public class UserAdminControl extends UserAdminTestSupport {
+
+
+	String				testMethodName;
+
+	@BeforeEach
+	void testMethodName(TestInfo testInfo) {
+		testMethodName = testInfo.getTestMethod().get().getName();
+	}
 	private UserAdmin	useradmin;
 	private List<Role>	rolesToKeep;
 
-	protected void setUp() throws Exception {
+	@BeforeEach
+	public void setUp() throws Exception {
 		useradmin = getService(UserAdmin.class);
 		rolesToKeep = asList(useradmin.getRoles(null));
 	}
 
-	protected void tearDown() throws Exception {
+	@AfterEach
+	public void tearDown() throws Exception {
 		List<Role> roles = new ArrayList<>(asList(useradmin.getRoles(null)));
 		roles.removeAll(rolesToKeep);
 		for (Iterator<Role> iter = roles.iterator(); iter.hasNext();) {
@@ -64,14 +79,15 @@ public class UserAdminControl extends DefaultTestBundleControl {
 		return Arrays.asList(roles);
 	}
 
+	@Test
 	public void testCreateRole() throws Exception {
 		Role role = null;
 		role = useradmin.createRole("foo-user", Role.USER);
-		assertEquals("incorrect role name", "foo-user", roleToString(role));
+		assertThat(roleToString(role)).as("incorrect role name").isEqualTo("foo-user");
 		role = useradmin.createRole("foo-user", Role.USER);
-		assertNull("incorrect role name", roleToString(role));
+		assertThat(roleToString(role)).as("incorrect role name").isNull();
 		role = useradmin.createRole("foo-group", Role.GROUP);
-		assertEquals("incorrect role name", "foo-group", roleToString(role));
+		assertThat(roleToString(role)).as("incorrect role name").isEqualTo("foo-group");
 		try {
 			role = useradmin.createRole("foobar", Role.ROLE);
 			fail("expected IllegalArgumentException");
@@ -81,84 +97,90 @@ public class UserAdminControl extends DefaultTestBundleControl {
 		}
 	}
 
+	@Test
 	public void testRemoveRole() throws Exception {
 		useradmin.createRole("foo-user", Role.USER);
 		/* Remove the role once */
-		assertTrue("role not removed", useradmin.removeRole("foo-user"));
+		assertThat(useradmin.removeRole("foo-user")).as("role not removed").isTrue();
 		/* And try to remove it again */
-		assertFalse("role removed", useradmin.removeRole("foo-user"));
+		assertThat(useradmin.removeRole("foo-user")).as("role removed").isFalse();
 	}
 
+	@Test
 	public void testGetRole() throws Exception {
 		useradmin.createRole("foo1", Role.USER);
 		useradmin.createRole("foo2", Role.USER);
 		useradmin.createRole("foo3", Role.GROUP);
 		useradmin.createRole("foo4", Role.USER);
-		assertEquals("incorrect role name", "foo1", roleToString(useradmin
-				.getRole("foo1")));
-		assertEquals("incorrect role name", "foo2", roleToString(useradmin
-				.getRole("foo2")));
-		assertEquals("incorrect role name", "foo3", roleToString(useradmin
-				.getRole("foo3")));
-		assertEquals("incorrect role name", "foo4", roleToString(useradmin
-				.getRole("foo4")));
+		assertThat(roleToString(useradmin
+				.getRole("foo1"))).as("incorrect role name").isEqualTo("foo1");
+		assertThat(roleToString(useradmin
+				.getRole("foo2"))).as("incorrect role name").isEqualTo("foo2");
+		assertThat(roleToString(useradmin
+				.getRole("foo3"))).as("incorrect role name").isEqualTo("foo3");
+		assertThat(roleToString(useradmin
+				.getRole("foo4"))).as("incorrect role name").isEqualTo("foo4");
 		useradmin.removeRole("foo1");
-		assertNull("incorrect role name", roleToString(useradmin
-				.getRole("foo1")));
-		assertEquals("incorrect role name", "user.anyone",
-				roleToString(useradmin.getRole("user.anyone")));
+		assertThat(roleToString(useradmin
+				.getRole("foo1"))).as("incorrect role name").isNull();
+		assertThat(roleToString(useradmin.getRole("user.anyone"))).as("incorrect role name").isEqualTo("user.anyone");
 	}
 
+	@Test
 	public void testGetRoles() throws Exception {
 		Role r1 = useradmin.createRole("role1", Role.GROUP);
-		r1.getProperties().put(getName(), "r1");
+		r1.getProperties().put(testMethodName, "r1");
 		Role r2 = useradmin.createRole("role2", Role.USER);
-		r2.getProperties().put(getName(), "r3");
+		r2.getProperties().put(testMethodName, "r3");
 		Role r3 = useradmin.createRole("role3", Role.GROUP);
-		r3.getProperties().put(getName(), "r3");
-		String[] result = sortRoleNames(useradmin.getRoles("(" + getName()
+		r3.getProperties().put(testMethodName, "r3");
+		String[] result = sortRoleNames(useradmin.getRoles("(" + testMethodName
 				+ "=r*)"));
-		assertEquals("wrong number of roles", 3, result.length);
-		assertEquals("wrong role name", "role1", result[0]);
-		assertEquals("wrong role name", "role2", result[1]);
-		assertEquals("wrong role name", "role3", result[2]);
+		assertThat(result.length).as("wrong number of roles").isEqualTo(3);
+		assertThat(result[0]).as("wrong role name").isEqualTo("role1");
+		assertThat(result[1]).as("wrong role name").isEqualTo("role2");
+		assertThat(result[2]).as("wrong role name").isEqualTo("role3");
 	}
 
+	@Test
 	public void testGetUser() throws Exception {
 		Role r1 = useradmin.createRole("user1", Role.USER);
-		r1.getProperties().put(getName(), "u1");
+		r1.getProperties().put(testMethodName, "u1");
 		r1.getProperties().put("foobar", "xxx");
 		Role r2 = useradmin.createRole("user2", Role.USER);
-		r2.getProperties().put(getName(), "u3");
+		r2.getProperties().put(testMethodName, "u3");
 		Role r3 = useradmin.createRole("user3", Role.USER);
-		r3.getProperties().put(getName(), "u3");
+		r3.getProperties().put(testMethodName, "u3");
 		r3.getProperties().put("foobar", "xxx");
-		assertNull("role not null", roleToString(useradmin.getUser(
-				"unexisting-key", "foobar")));
-		assertEquals("could not find role", "user1", roleToString(useradmin
-				.getUser(getName(), "u1")));
-		assertNull("role not null", roleToString(useradmin.getUser("foobar",
-				"xxx")));
+		assertThat(roleToString(useradmin.getUser(
+				"unexisting-key", "foobar"))).as("role not null").isNull();
+		assertThat(roleToString(useradmin
+				.getUser(testMethodName, "u1"))).as("could not find role").isEqualTo("user1");
+		assertThat(roleToString(useradmin.getUser("foobar",
+				"xxx"))).as("role not null").isNull();
 	}
 
+	@Test
 	public void testRoleGetType() throws Exception {
 		assertConstant(Integer.valueOf(Role.USER), "USER", Role.class);
 		assertConstant(Integer.valueOf(Role.GROUP), "GROUP", Role.class);
 		assertConstant(Integer.valueOf(Role.ROLE), "ROLE", Role.class);
 		Role role = useradmin.createRole("r1", Role.USER);
-		assertEquals(role.getType(), Role.USER);
+		assertThat(Role.USER).isEqualTo(role.getType());
 		role = useradmin.createRole("r2", Role.GROUP);
-		assertEquals(role.getType(), Role.GROUP);
+		assertThat(Role.GROUP).isEqualTo(role.getType());
 	}
 
+	@Test
 	public void testRoleChangeProperties() throws Exception {
 		Role role = useradmin.createRole("r1", Role.USER);
 		Dictionary<String,Object> p = role.getProperties();
 		p.put("testKey", "testValue");
-		assertEquals("property not set", "testValue", (String) role
-				.getProperties().get("testKey"));
+		assertThat((String) role
+				.getProperties().get("testKey")).as("property not set").isEqualTo("testValue");
 	}
 
+	@Test
 	public void testRolePutProperties() throws Exception {
 		Role role = useradmin.createRole("r1", Role.USER);
 		@SuppressWarnings({
@@ -176,19 +198,22 @@ public class UserAdminControl extends DefaultTestBundleControl {
 		}
 	}
 
+	@Test
 	public void testRoleGetName() throws Exception {
-		assertEquals("incorrect role name", "r1", roleToString(useradmin
-				.createRole("r1", Role.GROUP)));
+		assertThat(roleToString(useradmin
+				.createRole("r1", Role.GROUP))).as("incorrect role name").isEqualTo("r1");
 	}
 
+	@Test
 	public void testUserChangeCredentials() throws Exception {
 		User user = (User) useradmin.createRole("u1", Role.USER);
 		Dictionary<String,Object> cred = user.getCredentials();
 		cred.put("testKey", "testValue");
-		assertEquals("incorrect value", "testValue", (String) user
-				.getCredentials().get("testKey"));
+		assertThat((String) user
+				.getCredentials().get("testKey")).as("incorrect value").isEqualTo("testValue");
 	}
 
+	@Test
 	public void testUserPutCredentials() throws Exception {
 		User user = (User) useradmin.createRole("u1", Role.USER);
 		@SuppressWarnings({
@@ -206,62 +231,68 @@ public class UserAdminControl extends DefaultTestBundleControl {
 		}
 	}
 
+	@Test
 	public void testUserHasCredential() throws Exception {
 		User user = (User) useradmin.createRole("u1", Role.USER);
 		user.getCredentials().put("password", "1234");
 		user.getCredentials().put("pwd2", new byte[] {0, 0, 0});
-		assertTrue("missing credential", user.hasCredential("password", "1234"));
-		assertFalse("credential found that was not present", user
-				.hasCredential("xxx", Integer.valueOf(1)));
-		assertTrue("missing credential", user.hasCredential("pwd2", new byte[] {
-				0, 0, 0}));
+		assertThat(user.hasCredential("password", "1234")).as("missing credential").isTrue();
+		assertThat(user
+				.hasCredential("xxx", Integer.valueOf(1))).as("credential found that was not present").isFalse();
+		assertThat(user.hasCredential("pwd2", new byte[] {
+				0, 0, 0})).as("missing credential").isTrue();
 	}
 
+	@Test
 	public void testGroupAddMember() throws Exception {
 		Group group = (Group) useradmin.createRole("group", Role.GROUP);
 		Role user = useradmin.createRole("user1", Role.USER);
-		assertTrue("adding member to group failed", group.addMember(user));
-		assertFalse("adding existing member to group succeed", group
-				.addMember(user));
+		assertThat(group.addMember(user)).as("adding member to group failed").isTrue();
+		assertThat(group
+				.addMember(user)).as("adding existing member to group succeed").isFalse();
 	}
 
+	@Test
 	public void testGroupAddRequiredMembers() throws Exception {
 		Group group = (Group) useradmin.createRole("group", Role.GROUP);
 		Role user = useradmin.createRole("user1", Role.USER);
-		assertTrue("adding member to group failed", group
-				.addRequiredMember(user));
-		assertFalse("adding existing member to group succeed", group
-				.addRequiredMember(user));
+		assertThat(group
+				.addRequiredMember(user)).as("adding member to group failed").isTrue();
+		assertThat(group
+				.addRequiredMember(user)).as("adding existing member to group succeed").isFalse();
 	}
 
+	@Test
 	public void testGroupGetMembers() throws Exception {
 		Group group = (Group) useradmin.createRole("group", Role.GROUP);
 		String[] result = sortRoleNames(group.getMembers());
-		assertEquals("wrong number of roles", 0, result.length);
+		assertThat(result.length).as("wrong number of roles").isZero();
 		Role u1 = useradmin.createRole("user1", Role.USER);
 		Role u2 = useradmin.createRole("user2", Role.USER);
 		group.addMember(u1);
 		group.addMember(u2);
 		result = sortRoleNames(group.getMembers());
-		assertEquals("wrong number of roles", 2, result.length);
-		assertEquals("wrong role name", "user1", result[0]);
-		assertEquals("wrong role name", "user2", result[1]);
+		assertThat(result.length).as("wrong number of roles").isEqualTo(2);
+		assertThat(result[0]).as("wrong role name").isEqualTo("user1");
+		assertThat(result[1]).as("wrong role name").isEqualTo("user2");
 	}
 
+	@Test
 	public void testGroupGetRequiredMembers() throws Exception {
 		Group group = (Group) useradmin.createRole("group", Role.GROUP);
 		String[] result = sortRoleNames(group.getRequiredMembers());
-		assertEquals("wrong number of roles", 0, result.length);
+		assertThat(result.length).as("wrong number of roles").isZero();
 		Role u1 = useradmin.createRole("user1", Role.USER);
 		Role u2 = useradmin.createRole("user2", Role.USER);
 		group.addRequiredMember(u1);
 		group.addRequiredMember(u2);
 		result = sortRoleNames(group.getRequiredMembers());
-		assertEquals("wrong number of roles", 2, result.length);
-		assertEquals("wrong role name", "user1", result[0]);
-		assertEquals("wrong role name", "user2", result[1]);
+		assertThat(result.length).as("wrong number of roles").isEqualTo(2);
+		assertThat(result[0]).as("wrong role name").isEqualTo("user1");
+		assertThat(result[1]).as("wrong role name").isEqualTo("user2");
 	}
 
+	@Test
 	public void testGroupRemoveMember() throws Exception {
 		Group group = (Group) useradmin.createRole("group", Role.GROUP);
 		Role u1 = useradmin.createRole("user1", Role.USER);
@@ -270,17 +301,18 @@ public class UserAdminControl extends DefaultTestBundleControl {
 		group.addMember(u2);
 		group.removeMember(u2);
 		String[] result = sortRoleNames(group.getMembers());
-		assertEquals("wrong number of roles", 1, result.length);
-		assertEquals("wrong role name", "user1", result[0]);
+		assertThat(result.length).as("wrong number of roles").isOne();
+		assertThat(result[0]).as("wrong role name").isEqualTo("user1");
 	}
 
+	@Test
 	public void testUserAnyone() {
 		Role user1 = useradmin.createRole("user1", Role.USER);
 		Group foorole = (Group) useradmin.createRole("foorole", Role.GROUP);
 		foorole.addRequiredMember(user1);
 		foorole.addMember(useradmin.getRole("user.anyone"));
 		Authorization auth = useradmin.getAuthorization((User) user1);
-		assertTrue("role not present", auth.hasRole("foorole"));
+		assertThat(auth.hasRole("foorole")).as("role not present").isTrue();
 		String roles[] = auth.getRoles();
 		if (roles != null) {
 			for (int i = 0; i < roles.length; i++) {
@@ -291,40 +323,43 @@ public class UserAdminControl extends DefaultTestBundleControl {
 		}
 	}
 
+	@Test
 	public void testBasicRequired() {
 		setupRoles();
 		User user1 = (User) useradmin.getRole("user1");
 		User user2 = (User) useradmin.getRole("user2");
 		User user3 = (User) useradmin.getRole("user3");
 		Group required = (Group) useradmin.getRole("requiredgroup");
-		assertNotNull(required);
+		assertThat(required).isNotNull();
 		Group testrole = (Group) useradmin.getRole("testrole");
-		assertNotNull(testrole);
+		assertThat(testrole).isNotNull();
 		Authorization auth = useradmin.getAuthorization(user1);
-		assertTrue("hasRole testrole", auth.hasRole("testrole"));
+		assertThat(auth.hasRole("testrole")).as("hasRole testrole").isTrue();
 		auth = useradmin.getAuthorization(user2);
-		assertTrue("hasRole testrole", auth.hasRole("testrole"));
+		assertThat(auth.hasRole("testrole")).as("hasRole testrole").isTrue();
 		auth = useradmin.getAuthorization(user3);
-		assertFalse("hasRole testrole", auth.hasRole("testrole"));
+		assertThat(auth.hasRole("testrole")).as("hasRole testrole").isFalse();
 	}
 
+	@Test
 	public void testRequiredAuth() {
 		setupRoles();
 		User user1 = (User) useradmin.getRole("user1");
 		User user2 = (User) useradmin.getRole("user2");
 		User user3 = (User) useradmin.getRole("user3");
 		Group required = (Group) useradmin.getRole("requiredgroup");
-		assertNotNull(required);
+		assertThat(required).isNotNull();
 		Group testrole = (Group) useradmin.getRole("testrole");
-		assertNotNull(testrole);
+		assertThat(testrole).isNotNull();
 		testrole.removeMember(user1);
 		testrole.removeMember(user2);
 		testrole.removeMember(user3);
 		testrole.removeMember(useradmin.getRole("user.anyone"));
 		Authorization auth = useradmin.getAuthorization(user1);
-		assertFalse("hasRole testrole", auth.hasRole("testrole"));
+		assertThat(auth.hasRole("testrole")).as("hasRole testrole").isFalse();
 	}
 
+	@Test
 	public void testUserAnyoneBasic() {
 		setupRoles();
 		User user1 = (User) useradmin.getRole("user1");
@@ -341,15 +376,16 @@ public class UserAdminControl extends DefaultTestBundleControl {
 		required.removeMember(user3);
 		testrole.addMember(anyone);
 		Authorization auth = useradmin.getAuthorization(user1);
-		assertTrue("hasRole testrole", auth.hasRole("testrole"));
+		assertThat(auth.hasRole("testrole")).as("hasRole testrole").isTrue();
 		auth = useradmin.getAuthorization(user2);
-		assertTrue("hasRole testrole", auth.hasRole("testrole"));
+		assertThat(auth.hasRole("testrole")).as("hasRole testrole").isTrue();
 		auth = useradmin.getAuthorization(user3);
-		assertFalse("hasRole testrole", auth.hasRole("testrole"));
+		assertThat(auth.hasRole("testrole")).as("hasRole testrole").isFalse();
 		auth = useradmin.getAuthorization(user4);
-		assertFalse("hasRole testrole", auth.hasRole("testrole"));
+		assertThat(auth.hasRole("testrole")).as("hasRole testrole").isFalse();
 	}
 
+	@Test
 	public void testUserAnyoneRequired() {
 		setupRoles();
 		User user1 = (User) useradmin.getRole("user1");
@@ -366,43 +402,46 @@ public class UserAdminControl extends DefaultTestBundleControl {
 		testrole.removeMember(user3);
 		testrole.addMember(user4);
 		Authorization auth = useradmin.getAuthorization(user1);
-		assertTrue("hasRole testrole", auth.hasRole("testrole"));
+		assertThat(auth.hasRole("testrole")).as("hasRole testrole").isTrue();
 		auth = useradmin.getAuthorization(user2);
-		assertFalse("hasRole testrole", auth.hasRole("testrole"));
+		assertThat(auth.hasRole("testrole")).as("hasRole testrole").isFalse();
 		auth = useradmin.getAuthorization(user3);
-		assertFalse("hasRole testrole", auth.hasRole("testrole"));
+		assertThat(auth.hasRole("testrole")).as("hasRole testrole").isFalse();
 		auth = useradmin.getAuthorization(user4);
-		assertTrue("hasRole testrole", auth.hasRole("testrole"));
+		assertThat(auth.hasRole("testrole")).as("hasRole testrole").isTrue();
 	}
 
+	@Test
 	public void testAnonymousUser() {
 		setupRoles();
 		Authorization auth = useradmin.getAuthorization(null);
-		assertNull("anonymous user", auth.getName());
+		assertThat(auth.getName()).as("anonymous user").isNull();
 		useradmin.removeRole("anygroup");
-		assertFalse("hasRole anygroup", auth.hasRole("anygroup"));
+		assertThat(auth.hasRole("anygroup")).as("hasRole anygroup").isFalse();
 		Group anygroup = (Group) useradmin.createRole("anygroup", Role.GROUP);
 		anygroup.addMember(useradmin.getRole("user.anyone"));
 		anygroup.addRequiredMember(useradmin.getRole("user.anyone"));
-		assertTrue("hasRole anygroup", auth.hasRole("anygroup"));
-		assertFalse("hasRole requiredgroup", auth.hasRole("requiredgroup"));
-		assertTrue("hasRole user.anyone", auth.hasRole("user.anyone"));
+		assertThat(auth.hasRole("anygroup")).as("hasRole anygroup").isTrue();
+		assertThat(auth.hasRole("requiredgroup")).as("hasRole requiredgroup").isFalse();
+		assertThat(auth.hasRole("user.anyone")).as("hasRole user.anyone").isTrue();
 	}
 
+	@Test
 	public void testGroupInGroup() {
 		User user1 = (User) useradmin.createRole("user1", Role.USER);
 		Group group1 = (Group) useradmin.createRole("group1", Role.GROUP);
-		assertTrue(group1.addRequiredMember(group1));
-		assertTrue(group1.addMember(user1));
+		assertThat(group1.addRequiredMember(group1)).isTrue();
+		assertThat(group1.addMember(user1)).isTrue();
 		Authorization auth = useradmin.getAuthorization(user1);
-		assertFalse("hasRole group1", auth.hasRole("group1"));
+		assertThat(auth.hasRole("group1")).as("hasRole group1").isFalse();
 	}
 
+	@Test
 	public void testUserAdminEvents() throws Exception {
 		UserAdminEventCollector uaec = new UserAdminEventCollector(
 				UserAdminEvent.ROLE_CREATED | UserAdminEvent.ROLE_CHANGED
 						| UserAdminEvent.ROLE_REMOVED);
-		ServiceRegistration<UserAdminListener> sr = getContext()
+		ServiceRegistration<UserAdminListener> sr = context
 				.registerService(UserAdminListener.class, uaec, null);
 		try {
 			/* Create a new role */
@@ -410,35 +449,35 @@ public class UserAdminControl extends DefaultTestBundleControl {
 			List<UserAdminEvent> events = uaec.getList(1,
 					1000 * OSGiTestCaseProperties
 					.getScaling());
-			assertEquals("missing event", 1, events.size());
+			assertThat(events).as("missing event").hasSize(1);
 			UserAdminEvent event = events.get(0);
-			assertEquals("wrong event type", UserAdminEvent.ROLE_CREATED, event
-					.getType());
-			assertEquals("wrong event role", "user1", roleToString(event
-					.getRole()));
+			assertThat(event
+					.getType()).as("wrong event type").isEqualTo(UserAdminEvent.ROLE_CREATED);
+			assertThat(roleToString(event
+					.getRole())).as("wrong event role").isEqualTo("user1");
 
 			/* Change a role */
 			Role role = useradmin.getRole("user1");
 			role.getProperties().put("newKey", "xxxxx");
 			events = uaec
 					.getList(1, 1000 * OSGiTestCaseProperties.getScaling());
-			assertEquals("missing event", 1, events.size());
+			assertThat(events).as("missing event").hasSize(1);
 			event = events.get(0);
-			assertEquals("wrong event type", UserAdminEvent.ROLE_CHANGED, event
-					.getType());
-			assertEquals("wrong event role", "user1", roleToString(event
-					.getRole()));
+			assertThat(event
+					.getType()).as("wrong event type").isEqualTo(UserAdminEvent.ROLE_CHANGED);
+			assertThat(roleToString(event
+					.getRole())).as("wrong event role").isEqualTo("user1");
 
 			/* Remove a role */
 			useradmin.removeRole("user1");
 			events = uaec
 					.getList(1, 1000 * OSGiTestCaseProperties.getScaling());
-			assertEquals("missing event", 1, events.size());
+			assertThat(events).as("missing event").hasSize(1);
 			event = events.get(0);
-			assertEquals("wrong event type", UserAdminEvent.ROLE_REMOVED, event
-					.getType());
-			assertEquals("wrong event role", "user1", roleToString(event
-					.getRole()));
+			assertThat(event
+					.getType()).as("wrong event type").isEqualTo(UserAdminEvent.ROLE_REMOVED);
+			assertThat(roleToString(event
+					.getRole())).as("wrong event role").isEqualTo("user1");
 		}
 		finally {
 			sr.unregister();
